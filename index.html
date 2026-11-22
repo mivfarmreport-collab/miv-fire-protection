@@ -1,0 +1,3201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MIV Fire Protection Report</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Roboto Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 for crisp Android Material-like icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['Roboto Mono', 'monospace'],
+          },
+          colors: {
+            mivRed: {
+              50: '#FFEBEE',
+              100: '#FFCDD2',
+              200: '#EF9A9A',
+              500: '#F44336',
+              600: '#E53935',
+              700: '#D32F2F',
+              800: '#C62828',
+              900: '#B71C1C',
+            },
+            mivYellow: {
+              50: '#FFFDE7',
+              100: '#FFF9C4',
+              200: '#FFF59D',
+              300: '#FFF176',
+              400: '#FFEE58',
+              500: '#FFC107',
+              600: '#FFB300',
+              700: '#FFA000',
+              800: '#FF8F00',
+            }
+          },
+          boxShadow: {
+            'android': '0 2px 6px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)',
+            'android-lg': '0 8px 20px rgba(211,47,47,0.18), 0 3px 6px rgba(0,0,0,0.08)',
+            'nav': '0 -3px 12px rgba(0,0,0,0.08)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Android Material 3 Touch & Scrollbar Polish */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #F4F5F7;
+      color: #1A1C1E;
+      font-family: 'Inter', sans-serif;
+      overscroll-behavior-y: contain;
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(211, 47, 47, 0.25);
+      border-radius: 9999px;
+    }
+    /* Android ripple-like active press scale */
+    .btn-android {
+      transition: transform 0.12s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    .btn-android:active {
+      transform: scale(0.97);
+    }
+    /* Jotform-style Card Top Accent */
+    .jotform-card {
+      border-top: 5px solid #D32F2F;
+    }
+    .jotform-card-yellow {
+      border-top: 5px solid #FFB300;
+    }
+    /* Print Optimization for Executive Report */
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .no-print, #android-header, #android-bottom-nav, #toast-container {
+        display: none !important;
+      }
+      #app-shell {
+        max-width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding-bottom: 0 !important;
+      }
+      #tab-executive {
+        display: block !important;
+      }
+      .print-break-inside {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex justify-center bg-neutral-200">
+
+  <!-- Main Android App Container (Mobile-First Shell that scales cleanly on Desktop) -->
+  <div id="app-shell" class="w-full max-w-2xl bg-[#F6F7F9] min-h-screen flex flex-col relative shadow-2xl border-x border-neutral-200/80 pb-24">
+
+    <!-- Simulated Android Status Bar -->
+    <div class="no-print bg-mivRed-900 text-white px-4 py-1 flex items-center justify-between text-[11px] font-medium tracking-wide select-none">
+      <div class="flex items-center gap-2">
+        <span id="status-clock" class="font-mono font-bold">10:52</span>
+        <span class="bg-mivYellow-500 text-neutral-950 font-extrabold px-1.5 py-0.2 rounded text-[9px] uppercase">MIV SAFETY</span>
+      </div>
+      <div class="flex items-center gap-2.5 text-white/90">
+        <span id="polling-indicator" class="hidden items-center gap-1 text-[10px] text-mivYellow-300">
+          <i class="fa-solid fa-rotate fa-spin"></i> Auto-Sync
+        </span>
+        <i class="fa-solid fa-wifi text-[10px]"></i>
+        <i class="fa-solid fa-signal text-[10px]"></i>
+        <i class="fa-solid fa-battery-three-quarters text-[11px]"></i>
+      </div>
+    </div>
+
+    <!-- Android Top App Bar -->
+    <header id="android-header" class="no-print sticky top-0 z-30 bg-gradient-to-r from-mivRed-700 via-mivRed-700 to-mivRed-800 text-white shadow-md">
+      <div class="px-4 py-3 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-2xl bg-mivYellow-500 text-mivRed-900 flex items-center justify-center shadow-md shrink-0 border-2 border-white/30">
+            <i class="fa-solid fa-fire-extinguisher text-xl"></i>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight leading-tight truncate">MIV Fire Protection Report</h1>
+            <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+              <!-- Live Dropbox Sync Status Pill -->
+              <button onclick="openDropboxModal()" id="dropbox-status-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-black/25 hover:bg-black/35 text-mivYellow-200 transition cursor-pointer">
+                <span id="dropbox-status-dot" class="w-2 h-2 rounded-full bg-mivYellow-400"></span>
+                <span id="dropbox-status-text">Local Mode • Setup Sync</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Controls: Role Switcher & Dropbox Gear -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button onclick="openRoleModal()" id="role-badge-btn" class="btn-android px-2.5 py-1.5 rounded-xl bg-mivYellow-500 hover:bg-mivYellow-400 text-neutral-950 font-extrabold text-xs shadow-sm flex items-center gap-1.5">
+            <i id="role-badge-icon" class="fa-solid fa-user-shield"></i>
+            <span id="role-badge-label">User</span>
+          </button>
+          <button onclick="openDropboxModal()" title="Dropbox Sync Settings" class="btn-android w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 text-white flex items-center justify-center">
+            <i class="fa-brands fa-dropbox text-base"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Sub-Bar: Active Farm & Sync Bar -->
+      <div class="bg-mivRed-900/60 px-4 py-1.5 flex items-center justify-between text-xs border-t border-white/10">
+        <div class="flex items-center gap-1.5 text-mivYellow-200 font-medium truncate">
+          <i class="fa-solid fa-warehouse text-[11px]"></i>
+          <span>Active Farm:</span>
+          <strong id="header-active-farm" class="text-white truncate">Farm A - Pilah Layer</strong>
+        </div>
+        <button onclick="syncNow()" id="header-sync-btn" class="text-[11px] font-bold text-mivYellow-300 hover:text-white flex items-center gap-1 shrink-0">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Sync Now
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 px-3 sm:px-4 pt-4 space-y-4">
+
+      <!-- ===================================================================== -->
+      <!-- TAB 1: DAILY REPORT (JOTFORM-STYLE DAILY INPUT CARD)                  -->
+      <!-- ===================================================================== -->
+      <section id="tab-daily" class="space-y-4">
+
+        <!-- Jotform Header Card: Date, Farm Selection, Quick-Tap House Pills -->
+        <div class="bg-white rounded-2xl shadow-android jotform-card p-4 sm:p-5 space-y-4">
+          <div class="flex items-start justify-between gap-2 border-b border-neutral-100 pb-3">
+            <div>
+              <span class="inline-block px-2.5 py-0.5 rounded-full bg-mivRed-50 text-mivRed-700 font-bold text-[11px] uppercase tracking-wider mb-1">Daily Safety Inspection</span>
+              <h2 class="text-lg font-extrabold text-neutral-900">Fire Protection Checklist</h2>
+              <p class="text-xs text-neutral-500">Select farm group & log fire extinguisher and hydrant inspections.</p>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-[10px] font-bold uppercase text-neutral-400 block">Draft Items</span>
+              <span id="draft-badge-count" class="inline-flex items-center px-2.5 py-1 rounded-xl bg-mivYellow-100 text-mivRed-800 font-extrabold text-xs">0 Checked</span>
+            </div>
+          </div>
+
+          <!-- Date & Farm Group Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-neutral-700 mb-1">
+                <i class="fa-regular fa-calendar text-mivRed-600 mr-1"></i> Select Date (Auto)
+              </label>
+              <input type="date" id="input-report-date" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivRed-600 focus:ring-0 px-3 py-2.5 text-sm font-semibold text-neutral-800 bg-neutral-50/70" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-neutral-700 mb-1">
+                <i class="fa-solid fa-layer-group text-mivRed-600 mr-1"></i> Select Group (Farm)
+              </label>
+              <select id="input-farm-select" onchange="onFarmChange(this.value)" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivRed-600 focus:ring-0 px-3 py-2.5 text-sm font-bold text-neutral-900 bg-mivYellow-50/60">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- SECTION A: FIRE EXTINGUISHER CHECKLIST INPUT / ADD              -->
+        <!-- =============================================================== -->
+        <div class="bg-white rounded-2xl shadow-android jotform-card p-4 sm:p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-mivRed-600 text-white flex items-center justify-center shadow-sm">
+                <i class="fa-solid fa-fire-extinguisher"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-extrabold text-neutral-900">Fire Extinguisher Checklist</h3>
+                <p class="text-[11px] text-neutral-500">Add each extinguisher unit inspected in this farm</p>
+              </div>
+            </div>
+            <span class="px-2 py-1 rounded-lg bg-mivRed-50 text-mivRed-700 font-bold text-xs">Section A</span>
+          </div>
+
+          <!-- Input Location -->
+          <div>
+            <label class="block text-xs font-bold text-neutral-700 mb-1">
+              Input Location <span class="text-mivRed-600">*</span> <span class="text-neutral-400 font-normal">(House Number, Store, etc.)</span>
+            </label>
+            <select id="ext-location" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivRed-600 px-3 py-2.5 text-sm font-semibold text-neutral-800 bg-white">
+              <!-- Populated from selected Farm's houses/locations -->
+            </select>
+          </div>
+
+          <!-- Select Pressure Gauge: Normal (Green) vs Recharge/Empty (Red) -->
+          <div>
+            <label class="block text-xs font-bold text-neutral-700 mb-1.5">
+              Select Pressure Gauge <span class="text-mivRed-600">*</span>
+            </label>
+            <div id="ext-pressure-pills" class="grid grid-cols-2 gap-2.5">
+              <!-- Rendered dynamically from Selection Menu with Green/Red visual cues -->
+            </div>
+          </div>
+
+          <!-- Select Safety Pin / Seal & Condition -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-neutral-700 mb-1">
+                Select Safety Pin / Seal <span class="text-mivRed-600">*</span>
+              </label>
+              <select id="ext-seal" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivRed-600 px-3 py-2.5 text-sm font-semibold text-neutral-800 bg-white">
+                <!-- Populated from Selection Menu -->
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-neutral-700 mb-1">
+                Select Condition <span class="text-mivRed-600">*</span>
+              </label>
+              <select id="ext-condition" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivRed-600 px-3 py-2.5 text-sm font-semibold text-neutral-800 bg-white">
+                <!-- Populated from Selection Menu -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Select Date of Expiration Date -->
+          <div>
+            <label class="block text-xs font-bold text-neutral-700 mb-1">
+              Select Date of Expiration Date <span class="text-mivRed-600">*</span>
+            </label>
+            <input type="date" id="ext-expiry-date" onchange="onExpiryDateChange(this.value)" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivRed-600 px-3 py-2.5 text-sm font-semibold text-neutral-800 bg-white" />
+          </div>
+
+          <!-- Add Fire Extinguisher Entry Button -->
+          <button type="button" onclick="addExtinguisherEntry()" class="btn-android w-full py-3 px-4 rounded-xl bg-mivYellow-500 hover:bg-mivYellow-400 text-neutral-950 font-extrabold text-sm shadow-sm flex items-center justify-center gap-2 border border-mivYellow-600/30">
+            <i class="fa-solid fa-plus-circle text-mivRed-700 text-base"></i>
+            <span>ADD FIRE EXTINGUISHER TO CHECKLIST</span>
+          </button>
+
+          <!-- Added Fire Extinguishers List -->
+          <div id="ext-added-list" class="space-y-2 pt-1">
+            <!-- Dynamic items rendered here -->
+          </div>
+
+          <!-- BELOW DISPLAY RESULT: Total Good, Total Empty, Total Expired, Overall Total Fire Extinguisher -->
+          <div class="bg-neutral-900 rounded-2xl p-3.5 text-white space-y-2.5 shadow-inner">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-mivYellow-400">
+                <i class="fa-solid fa-chart-pie mr-1"></i> Extinguisher Live Summary Result
+              </span>
+              <span class="text-[10px] text-neutral-400">Auto-Calculated</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <div class="bg-emerald-950/90 border border-emerald-500/40 rounded-xl p-2">
+                <span class="block text-[10px] font-bold text-emerald-300 uppercase">Total Good</span>
+                <span id="stat-ext-good" class="text-xl font-black text-emerald-400 font-mono">0</span>
+              </div>
+              <div class="bg-red-950/90 border border-red-500/40 rounded-xl p-2">
+                <span class="block text-[10px] font-bold text-red-300 uppercase">Total Empty</span>
+                <span id="stat-ext-empty" class="text-xl font-black text-red-400 font-mono">0</span>
+              </div>
+              <div class="bg-amber-950/90 border border-amber-500/40 rounded-xl p-2">
+                <span class="block text-[10px] font-bold text-amber-300 uppercase">Total Expired</span>
+                <span id="stat-ext-expired" class="text-xl font-black text-amber-400 font-mono">0</span>
+              </div>
+              <div class="bg-mivYellow-500 text-neutral-950 rounded-xl p-2 shadow-sm">
+                <span class="block text-[10px] font-extrabold uppercase">Overall Total</span>
+                <span id="stat-ext-total" class="text-xl font-black font-mono">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- SECTION B: FIRE HYDRANT CHECKLIST INPUT / ADD                   -->
+        <!-- =============================================================== -->
+        <div class="bg-white rounded-2xl shadow-android jotform-card-yellow p-4 sm:p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-mivYellow-500 text-mivRed-900 flex items-center justify-center shadow-sm">
+                <i class="fa-solid fa-faucet-drip text-lg"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-extrabold text-neutral-900">Fire Hydrant Checklist</h3>
+                <p class="text-[11px] text-neutral-500">Pump house diesel, battery, test run & hose inventory</p>
+              </div>
+            </div>
+            <span class="px-2 py-1 rounded-lg bg-mivYellow-100 text-mivRed-800 font-bold text-xs">Section B</span>
+          </div>
+
+          <!-- Select Location -->
+          <div>
+            <label class="block text-xs font-bold text-neutral-700 mb-1">
+              Select Location <span class="text-mivRed-600">*</span>
+            </label>
+            <select id="hyd-location" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivYellow-600 px-3 py-2.5 text-sm font-semibold text-neutral-800 bg-white">
+              <!-- Populated from selected Farm's locations -->
+            </select>
+          </div>
+
+          <!-- Select Hydrant Type: Electric vs Diesel -->
+          <div>
+            <label class="block text-xs font-bold text-neutral-700 mb-1.5">
+              Select Fire Hydrant Type <span class="text-mivRed-600">*</span>
+            </label>
+            <div id="hyd-type-pills" class="grid grid-cols-2 gap-2.5">
+              <!-- Rendered dynamically (Electric / Diesel) -->
+            </div>
+          </div>
+
+          <!-- Select Diesel Capacity % (Input how many % balance - shown for Diesel type) -->
+          <div id="hyd-diesel-wrapper" class="bg-neutral-50 rounded-xl p-3 border border-neutral-200/80 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-neutral-700">
+                Select Diesel Capacity % <span class="text-neutral-400 font-normal">(Balance %)</span>
+              </label>
+              <span id="hyd-diesel-display" class="px-2.5 py-0.5 rounded-lg bg-neutral-300 text-neutral-700 font-mono font-extrabold text-xs">--%</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="range" id="hyd-diesel-range" min="0" max="100" value="0" oninput="syncDieselInputs(this.value)" class="flex-1 accent-mivRed-600 cursor-pointer" />
+              <div class="relative w-24">
+                <input type="number" id="hyd-diesel" min="0" max="100" placeholder="e.g. 85" oninput="syncDieselInputs(this.value)" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivRed-600 px-2.5 py-1.5 text-sm font-mono font-bold text-right pr-6 bg-white placeholder:text-neutral-300 placeholder:font-normal" />
+                <span class="absolute right-2.5 top-2 text-xs font-bold text-neutral-400">%</span>
+              </div>
+            </div>
+            <div class="flex gap-1.5 pt-0.5">
+              <button type="button" onclick="syncDieselInputs(25)" class="px-2 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-bold">25%</button>
+              <button type="button" onclick="syncDieselInputs(50)" class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">50%</button>
+              <button type="button" onclick="syncDieselInputs(75)" class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">75%</button>
+              <button type="button" onclick="syncDieselInputs(100)" class="px-2 py-0.5 rounded bg-emerald-200 text-emerald-900 text-[10px] font-bold">100% Full</button>
+            </div>
+          </div>
+
+          <!-- Battery Voltage & Test Run Engine (Minutes) -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-neutral-700 mb-1">
+                Battery Voltage (V)
+              </label>
+              <div class="relative">
+                <input type="number" step="0.1" id="hyd-battery" placeholder="e.g. 12.6" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivYellow-600 px-3 py-2.5 text-sm font-mono font-bold text-neutral-800 bg-white pr-8 placeholder:text-neutral-300 placeholder:font-normal" />
+                <span class="absolute right-3 top-2.5 text-xs font-extrabold text-neutral-400">V</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-neutral-700 mb-1">
+                Test Run Engine (Mins)
+              </label>
+              <div class="relative">
+                <input type="number" min="0" id="hyd-test-run" placeholder="e.g. 15" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivYellow-600 px-3 py-2.5 text-sm font-mono font-bold text-neutral-800 bg-white pr-11 placeholder:text-neutral-300 placeholder:font-normal" />
+                <span class="absolute right-3 top-2.5 text-xs font-bold text-neutral-400">mins</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Number of Fire Hose Available & Number of Hose Nozzle -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-neutral-700 mb-1">
+                Number of Fire Hose Available
+              </label>
+              <input type="number" min="0" id="hyd-hose-count" placeholder="e.g. 2" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivYellow-600 px-3 py-2.5 text-sm font-mono font-bold text-neutral-800 bg-white placeholder:text-neutral-300 placeholder:font-normal" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-neutral-700 mb-1">
+                Number of Hose Nozzle
+              </label>
+              <input type="number" min="0" id="hyd-nozzle-count" placeholder="e.g. 2" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivYellow-600 px-3 py-2.5 text-sm font-mono font-bold text-neutral-800 bg-white placeholder:text-neutral-300 placeholder:font-normal" />
+            </div>
+          </div>
+
+          <!-- Add Fire Hydrant Entry Button -->
+          <button type="button" onclick="addHydrantEntry()" class="btn-android w-full py-3 px-4 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-mivYellow-400 font-extrabold text-sm shadow-sm flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus-circle text-mivYellow-400 text-base"></i>
+            <span>ADD FIRE HYDRANT TO CHECKLIST</span>
+          </button>
+
+          <!-- Added Fire Hydrants List -->
+          <div id="hyd-added-list" class="space-y-2 pt-1">
+            <!-- Dynamic hydrant items rendered here -->
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- SECTION C: INSPECTOR & SUBMIT FIRE PROTECTION REPORT            -->
+        <!-- =============================================================== -->
+        <div class="bg-white rounded-2xl shadow-android jotform-card p-4 sm:p-5 space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-neutral-700 mb-1">
+              <i class="fa-solid fa-user-check text-mivRed-600 mr-1"></i> Select Workers Name Inspector <span class="text-mivRed-600">*</span>
+            </label>
+            <select id="input-inspector-select" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivRed-600 px-3 py-2.5 text-sm font-bold text-neutral-900 bg-white">
+              <!-- Populated from Selection Menu -->
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-neutral-700 mb-1">
+              Inspection Remarks / Notes <span class="text-neutral-400 font-normal">(Optional)</span>
+            </label>
+            <input type="text" id="input-report-notes" placeholder="e.g. All hydrants pressurized & extinguishers verified" class="w-full rounded-xl border-2 border-neutral-200 focus:border-mivRed-600 px-3 py-2.5 text-sm text-neutral-800 bg-neutral-50/70" />
+          </div>
+
+          <button type="button" onclick="submitFireProtectionReport()" class="btn-android w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-mivRed-700 to-mivRed-800 hover:from-mivRed-800 hover:to-mivRed-900 text-white font-black text-sm sm:text-base tracking-wide shadow-android-lg flex items-center justify-center gap-2.5">
+            <i class="fa-solid fa-paper-plane text-mivYellow-400 text-base"></i>
+            <span>SUBMIT FIRE PROTECTION REPORT</span>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 2: MY LOGS (VIEW, WHATSAPP SHARE, AMEND & DELETE w/ PASSWORD)     -->
+      <!-- ===================================================================== -->
+      <section id="tab-logs" class="hidden space-y-4">
+        <div class="bg-white rounded-2xl shadow-android jotform-card p-4 sm:p-5 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <span class="inline-block px-2 py-0.5 rounded bg-mivRed-50 text-mivRed-700 font-extrabold text-[10px] uppercase">Inspection History</span>
+              <h2 class="text-lg font-extrabold text-neutral-900 mt-0.5">My Logs</h2>
+              <p class="text-xs text-neutral-500">View reports, share summary to WhatsApp, amend or delete</p>
+            </div>
+            <span id="logs-total-badge" class="px-3 py-1 rounded-xl bg-mivYellow-400 text-neutral-950 font-extrabold text-xs shrink-0">0 Reports</span>
+          </div>
+
+          <!-- Search & Farm Filter -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-neutral-400"></i>
+              <input type="text" id="logs-search-input" oninput="renderLogs()" placeholder="Search date, inspector, location..." class="w-full rounded-xl border border-neutral-200 pl-8 pr-3 py-2 text-xs font-semibold bg-neutral-50 focus:border-mivRed-600 outline-none" />
+            </div>
+            <select id="logs-farm-filter" onchange="renderLogs()" class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-xs font-bold text-neutral-800 bg-neutral-50">
+              <option value="ALL">All Farm Groups</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Logs Feed Container -->
+        <div id="logs-list-container" class="space-y-3">
+          <!-- Log cards injected here -->
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 3: EXECUTIVE REPORT (GROUP DETAILED REPORT, PRINT, CSV, WHATSAPP) -->
+      <!-- ===================================================================== -->
+      <section id="tab-executive" class="hidden space-y-4">
+        <div class="bg-white rounded-2xl shadow-android jotform-card p-4 sm:p-5 space-y-4">
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <span class="inline-block px-2 py-0.5 rounded bg-mivYellow-400 text-neutral-950 font-extrabold text-[10px] uppercase">Automated Farm Analytics</span>
+              <h2 class="text-lg font-extrabold text-neutral-900 mt-0.5">Executive Farm Report</h2>
+              <p class="text-xs text-neutral-500">Group-by-group fire safety compliance summary &amp; exports</p>
+            </div>
+            <!-- Action Buttons: Print, CSV, WhatsApp -->
+            <div class="no-print flex flex-wrap items-center gap-2">
+              <button onclick="printExecutiveReport()" class="btn-android px-3 py-2 rounded-xl bg-neutral-900 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-print text-mivYellow-400"></i> Print
+              </button>
+              <button onclick="exportExecutiveCSV()" class="btn-android px-3 py-2 rounded-xl bg-mivYellow-500 text-neutral-950 font-extrabold text-xs flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-file-csv text-mivRed-800"></i> CSV
+              </button>
+              <button onclick="shareExecutiveWhatsApp()" class="btn-android px-3 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
+                <i class="fa-brands fa-whatsapp text-sm"></i> Share
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter Controls -->
+          <div class="no-print grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-neutral-500 mb-1">Filter Farm Group</label>
+              <select id="exec-farm-filter" onchange="renderExecutiveReport()" class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-xs font-bold text-neutral-800 bg-neutral-50">
+                <option value="ALL">All Farms (Consolidated)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-neutral-500 mb-1">Date From</label>
+              <input type="date" id="exec-date-from" onchange="renderExecutiveReport()" class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-xs font-semibold bg-neutral-50" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-neutral-500 mb-1">Date To</label>
+              <input type="date" id="exec-date-to" onchange="renderExecutiveReport()" class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-xs font-semibold bg-neutral-50" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Executive Overall KPI Strip -->
+        <div id="exec-kpi-strip" class="grid grid-cols-2 gap-2.5">
+          <!-- KPI Cards rendered dynamically -->
+        </div>
+
+        <!-- Per-Group Detailed Farm Breakdown Cards -->
+        <div id="exec-group-reports" class="space-y-4">
+          <!-- Group-by-group detailed report cards rendered here -->
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 4: ADMIN PANEL (GENERATE REPORT, EDIT/ADD FARMS, HOUSES & MENUS)  -->
+      <!-- ===================================================================== -->
+      <section id="tab-admin" class="hidden space-y-4">
+        <!-- Admin Password Lock Screen (Shown when locked) -->
+        <div id="admin-lock-screen" class="bg-white rounded-2xl shadow-android jotform-card p-6 text-center space-y-4">
+          <div class="w-14 h-14 rounded-2xl bg-mivRed-100 text-mivRed-700 mx-auto flex items-center justify-center text-2xl shadow-inner">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-extrabold text-neutral-900">Admin Control Center</h2>
+            <p class="text-xs text-neutral-500 mt-1">Enter Admin Password to configure farms, houses, menus &amp; automated reports</p>
+          </div>
+          <div class="max-w-xs mx-auto space-y-2.5">
+            <input type="password" id="admin-pass-input" onkeydown="if(event.key==='Enter') unlockAdminTab()" placeholder="Enter admin password" class="w-full rounded-xl border-2 border-neutral-300 focus:border-mivRed-600 px-4 py-2.5 text-center font-mono font-bold text-base tracking-widest outline-none" />
+            <button onclick="unlockAdminTab()" class="btn-android w-full py-3 rounded-xl bg-mivRed-700 hover:bg-mivRed-800 text-white font-extrabold text-sm shadow-md">
+              Unlock Admin Settings
+            </button>
+          </div>
+        </div>
+
+        <!-- Admin Unlocked Workspace -->
+        <div id="admin-unlocked-content" class="hidden space-y-4">
+          <!-- Admin Top Header -->
+          <div class="bg-gradient-to-r from-neutral-900 to-neutral-800 text-white rounded-2xl p-4 flex items-center justify-between shadow-android">
+            <div>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-mivYellow-400">Admin Mode Active</span>
+              <h2 class="text-base font-extrabold">Farm &amp; Safety Configuration</h2>
+            </div>
+            <button onclick="lockAdminSession()" class="btn-android px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-mivYellow-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-lock"></i> Lock
+            </button>
+          </div>
+
+          <!-- A1. Automated Farm Report Generator -->
+          <div class="bg-white rounded-2xl shadow-android jotform-card p-4 space-y-3">
+            <h3 class="text-sm font-extrabold text-neutral-900 flex items-center gap-2">
+              <i class="fa-solid fa-wand-magic-sparkles text-mivRed-600"></i> Generate Automated Farm Report
+            </h3>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <select id="admin-auto-report-farm" class="flex-1 rounded-xl border border-neutral-300 px-3 py-2 text-xs font-bold bg-neutral-50">
+                <option value="ALL">All Farms (Company-Wide Audit)</option>
+              </select>
+              <button onclick="generateAutomatedFarmReport()" class="btn-android px-4 py-2.5 rounded-xl bg-mivRed-700 text-white font-extrabold text-xs shadow-xs">
+                Generate Audit Brief
+              </button>
+            </div>
+            <div id="admin-auto-report-output" class="hidden bg-neutral-50 rounded-xl p-3 border border-neutral-200 space-y-2"></div>
+          </div>
+
+          <!-- A2. Edit / Add Farm Groups & Required Extinguishers -->
+          <div class="bg-white rounded-2xl shadow-android jotform-card-yellow p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-extrabold text-neutral-900 flex items-center gap-2">
+                <i class="fa-solid fa-warehouse text-mivYellow-600"></i> Edit / Add Farm Groups
+              </h3>
+              <span class="text-[10px] font-bold text-neutral-400">Auto-Syncs to Dropbox</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input type="text" id="admin-new-farm-name" placeholder="New Farm Name (e.g. Farm D - Rembau)" class="sm:col-span-2 rounded-xl border border-neutral-300 px-3 py-2 text-xs font-semibold" />
+              <input type="number" min="0" id="admin-new-farm-req-ext" placeholder="Req. Extinguishers" class="rounded-xl border border-neutral-300 px-3 py-2 text-xs font-mono font-bold" />
+            </div>
+            <button onclick="adminAddFarm()" class="btn-android w-full py-2.5 rounded-xl bg-mivYellow-500 hover:bg-mivYellow-400 text-neutral-950 font-extrabold text-xs shadow-xs">
+              + Add New Farm Group
+            </button>
+            <div id="admin-farms-list" class="space-y-2 pt-1"></div>
+          </div>
+
+          <!-- A3. Edit / Add House Numbers & Location per Farm -->
+          <div class="bg-white rounded-2xl shadow-android jotform-card p-4 space-y-3">
+            <h3 class="text-sm font-extrabold text-neutral-900 flex items-center gap-2">
+              <i class="fa-solid fa-house-chimney text-mivRed-600"></i> Edit / Add House Numbers &amp; Location
+            </h3>
+            <div>
+              <label class="block text-[11px] font-bold text-neutral-600 mb-1">Select Target Farm Group</label>
+              <select id="admin-house-farm-select" onchange="renderAdminHouses()" class="w-full rounded-xl border border-neutral-300 px-3 py-2 text-xs font-bold bg-mivYellow-50/60"></select>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input type="text" id="admin-new-house-num" placeholder="House No. (e.g. House 4 / Store 2)" class="rounded-xl border border-neutral-300 px-3 py-2 text-xs font-semibold" />
+              <input type="text" id="admin-new-house-loc" placeholder="Location (e.g. North Feed Silo)" class="rounded-xl border border-neutral-300 px-3 py-2 text-xs font-semibold" />
+            </div>
+            <button onclick="adminAddHouse()" class="btn-android w-full py-2.5 rounded-xl bg-neutral-900 text-mivYellow-400 font-extrabold text-xs">
+              + Add House / Location to Selected Farm
+            </button>
+            <div id="admin-houses-list" class="space-y-2 pt-1"></div>
+          </div>
+
+          <!-- A4. Edit / Add Selection Menu Options -->
+          <div class="bg-white rounded-2xl shadow-android jotform-card-yellow p-4 space-y-3">
+            <h3 class="text-sm font-extrabold text-neutral-900 flex items-center gap-2">
+              <i class="fa-solid fa-list-check text-mivYellow-600"></i> Edit / Add Selection Menu
+            </h3>
+            <div>
+              <label class="block text-[11px] font-bold text-neutral-600 mb-1">Menu Category</label>
+              <select id="admin-menu-category" onchange="renderAdminMenuOptions()" class="w-full rounded-xl border border-neutral-300 px-3 py-2 text-xs font-bold bg-neutral-50">
+                <option value="inspectors">Workers Name Inspector</option>
+                <option value="pressureGauges">Pressure Gauge Options</option>
+                <option value="safetySeals">Safety Pin / Seal Options</option>
+                <option value="conditions">Extinguisher Condition Options</option>
+                <option value="hydrantTypes">Fire Hydrant Type Options</option>
+              </select>
+            </div>
+            <div class="flex gap-2">
+              <input type="text" id="admin-new-menu-option" placeholder="New dropdown option value..." class="flex-1 rounded-xl border border-neutral-300 px-3 py-2 text-xs font-semibold" />
+              <button onclick="adminAddMenuOption()" class="btn-android px-4 py-2 rounded-xl bg-mivRed-700 text-white font-extrabold text-xs">
+                + Add
+              </button>
+            </div>
+            <div id="admin-menu-options-list" class="flex flex-wrap gap-2 pt-1"></div>
+          </div>
+
+          <!-- A5. Security & Password Settings -->
+          <div class="bg-white rounded-2xl shadow-android p-4 space-y-2.5 border border-neutral-200">
+            <h3 class="text-xs font-extrabold uppercase text-neutral-600">Admin &amp; Log Security Password</h3>
+            <div class="flex gap-2">
+              <input type="password" id="admin-update-password" placeholder="Set new admin/log password" class="flex-1 rounded-xl border border-neutral-300 px-3 py-2 text-xs font-mono font-bold" />
+              <button onclick="adminChangePassword()" class="btn-android px-4 py-2 rounded-xl bg-neutral-900 text-white font-bold text-xs">
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- ANDROID MATERIAL 3 BOTTOM NAVIGATION BAR                              -->
+    <!-- ===================================================================== -->
+    <nav id="android-bottom-nav" class="no-print fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl bg-white border-t border-neutral-200 shadow-nav z-30 px-2 py-1.5">
+      <div class="grid grid-cols-4 gap-1">
+        <button onclick="switchTab('daily')" id="nav-btn-daily" class="btn-android flex flex-col items-center justify-center py-1 rounded-xl text-mivRed-700">
+          <div class="nav-pill px-4 py-1 rounded-full bg-mivYellow-400 text-mivRed-900 transition">
+            <i class="fa-solid fa-clipboard-check text-sm"></i>
+          </div>
+          <span class="text-[10px] font-extrabold mt-0.5">Daily Form</span>
+        </button>
+
+        <button onclick="switchTab('logs')" id="nav-btn-logs" class="btn-android flex flex-col items-center justify-center py-1 rounded-xl text-neutral-500">
+          <div class="nav-pill px-4 py-1 rounded-full transition">
+            <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+          </div>
+          <span class="text-[10px] font-bold mt-0.5">My Logs</span>
+        </button>
+
+        <button onclick="switchTab('executive')" id="nav-btn-executive" class="btn-android flex flex-col items-center justify-center py-1 rounded-xl text-neutral-500">
+          <div class="nav-pill px-4 py-1 rounded-full transition">
+            <i class="fa-solid fa-chart-column text-sm"></i>
+          </div>
+          <span class="text-[10px] font-bold mt-0.5">Executive</span>
+        </button>
+
+        <button onclick="switchTab('admin')" id="nav-btn-admin" class="btn-android flex flex-col items-center justify-center py-1 rounded-xl text-neutral-500">
+          <div class="nav-pill px-4 py-1 rounded-full transition">
+            <i class="fa-solid fa-sliders text-sm"></i>
+          </div>
+          <span class="text-[10px] font-bold mt-0.5">Admin</span>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 1: DROPBOX CONTENT API v2 SYNC CONFIGURATION                      -->
+  <!-- ======================================================================= -->
+  <div id="dropbox-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] overflow-y-auto p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
+            <i class="fa-brands fa-dropbox text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-neutral-900">Dropbox Cloud Sync</h3>
+            <p class="text-[11px] text-neutral-500">API v2 • Syncs <code class="font-mono text-mivRed-700">/data/fireprotection.json</code></p>
+          </div>
+        </div>
+        <button onclick="closeDropboxModal()" class="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-neutral-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Permanent Refresh Token (Recommended • Never Expires) -->
+      <div class="bg-mivYellow-50 border border-mivYellow-300 rounded-2xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold text-neutral-900">
+            <i class="fa-solid fa-shield-halved text-mivRed-600 mr-1"></i> Permanent Refresh Token
+          </span>
+          <span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-bold text-[10px]">Recommended • Never Expires</span>
+        </div>
+        <p class="text-[11px] text-neutral-600">Supports both PKCE (App Key only) and standard OAuth2 (<code class="font-mono">client_secret</code>) automatic token refresh.</p>
+
+        <div class="space-y-2">
+          <div>
+            <label class="block text-[11px] font-bold text-neutral-700 mb-0.5">Refresh Token</label>
+            <input type="password" id="dbx-refresh-token" placeholder="Enter Dropbox OAuth2 Refresh Token..." class="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-mono" />
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-bold text-neutral-700 mb-0.5">App Key (Client ID)</label>
+              <input type="text" id="dbx-app-key" placeholder="e.g. 8x92k..." class="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-mono" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-neutral-700 mb-0.5">App Secret (Optional for PKCE)</label>
+              <input type="password" id="dbx-app-secret" placeholder="Leave blank if PKCE" class="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-mono" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Direct Access Token (Optional Fallback) -->
+      <div class="bg-neutral-50 border border-neutral-200 rounded-2xl p-3.5 space-y-2">
+        <label class="block text-xs font-extrabold text-neutral-800">
+          Direct Access Token <span class="text-neutral-400 font-normal">(Optional Fallback)</span>
+        </label>
+        <input type="password" id="dbx-access-token" placeholder="sl.B... Short-lived or generated access token" class="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-mono" />
+      </div>
+
+      <!-- 1-Tap New Device Sync Link -->
+      <div class="bg-mivRed-50 border border-mivRed-200 rounded-2xl p-3.5 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold text-mivRed-900">
+            <i class="fa-solid fa-mobile-screen-button mr-1"></i> 1-Tap New Device Sync Link
+          </span>
+          <button onclick="copyDeviceSyncLink()" class="btn-android px-3 py-1 rounded-lg bg-mivRed-700 text-white font-bold text-[11px] flex items-center gap-1">
+            <i class="fa-solid fa-copy"></i> Copy Sync Link
+          </button>
+        </div>
+        <p class="text-[11px] text-neutral-600">Encodes Refresh Token, App Key, App Secret &amp; Access Token into a magic link for instant Android phone setup.</p>
+        <input type="text" id="dbx-sync-link-preview" readonly class="w-full rounded-lg border border-mivRed-200 bg-white px-2.5 py-1.5 text-[10px] font-mono text-neutral-500" />
+      </div>
+
+      <!-- Sync Actions -->
+      <div class="grid grid-cols-2 gap-2.5 pt-1">
+        <button onclick="saveDropboxConfigAndConnect()" class="btn-android py-3 rounded-xl bg-mivRed-700 hover:bg-mivRed-800 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-cloud-arrow-down text-mivYellow-400"></i> Save &amp; Hydrate Now
+        </button>
+        <button onclick="pushToDropbox(true)" class="btn-android py-3 rounded-xl bg-mivYellow-500 hover:bg-mivYellow-400 text-neutral-950 font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-cloud-arrow-up text-mivRed-800"></i> Push Local to Cloud
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 2: ROLE SELECTOR (USER vs ADMIN w/ PASSWORD 1234)                 -->
+  <!-- ======================================================================= -->
+  <div id="role-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-extrabold text-neutral-900">Select Access Mode</h3>
+        <button onclick="closeRoleModal()" class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="selectRole('user')" id="role-card-user" class="btn-android p-4 rounded-2xl border-2 border-mivRed-600 bg-mivRed-50 text-left space-y-1.5">
+          <div class="w-9 h-9 rounded-xl bg-mivRed-600 text-white flex items-center justify-center">
+            <i class="fa-solid fa-helmet-safety"></i>
+          </div>
+          <div class="font-extrabold text-sm text-neutral-900">User Mode</div>
+          <p class="text-[11px] text-neutral-500">Field Inspector checklist &amp; reports</p>
+        </button>
+
+        <button onclick="promptRoleAdmin()" id="role-card-admin" class="btn-android p-4 rounded-2xl border-2 border-neutral-200 bg-neutral-50 text-left space-y-1.5">
+          <div class="w-9 h-9 rounded-xl bg-mivYellow-500 text-neutral-950 flex items-center justify-center">
+            <i class="fa-solid fa-user-shield"></i>
+          </div>
+          <div class="font-extrabold text-sm text-neutral-900">Admin Mode</div>
+          <p class="text-[11px] text-neutral-500">Farms, Houses, Menus &amp; Audit</p>
+        </button>
+      </div>
+
+      <div id="role-admin-pass-box" class="hidden space-y-2 pt-2 border-t border-neutral-100">
+        <label class="block text-xs font-bold text-neutral-700">Enter Admin Password</label>
+        <div class="flex gap-2">
+          <input type="password" id="role-admin-pass-input" onkeydown="if(event.key==='Enter') confirmRoleAdmin()" placeholder="Enter password" class="flex-1 rounded-xl border-2 border-neutral-300 px-3 py-2 text-sm font-mono font-bold" />
+          <button onclick="confirmRoleAdmin()" class="btn-android px-4 py-2 rounded-xl bg-mivRed-700 text-white font-extrabold text-xs">Login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 3: PASSWORD VERIFICATION FOR AMEND / DELETE LOG                   -->
+  <!-- ======================================================================= -->
+  <div id="password-gate-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-5 space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-mivRed-100 text-mivRed-700 flex items-center justify-center">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <div>
+          <h3 id="pass-gate-title" class="text-base font-extrabold text-neutral-900">Authorization Required</h3>
+          <p id="pass-gate-subtitle" class="text-xs text-neutral-500">Enter password to continue</p>
+        </div>
+      </div>
+      <input type="password" id="pass-gate-input" onkeydown="if(event.key==='Enter') submitPasswordGate()" placeholder="Enter password" class="w-full rounded-xl border-2 border-neutral-300 focus:border-mivRed-600 px-3.5 py-2.5 text-center font-mono font-bold text-base tracking-widest outline-none" />
+      <div class="grid grid-cols-2 gap-2.5">
+        <button onclick="closePasswordGate()" class="py-2.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-xs">Cancel</button>
+        <button onclick="submitPasswordGate()" class="btn-android py-2.5 rounded-xl bg-mivRed-700 text-white font-extrabold text-xs">Verify &amp; Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 4: VIEW / AMEND LOG DETAILS MODAL                                 -->
+  <!-- ======================================================================= -->
+  <div id="log-detail-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-xl rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+        <div>
+          <span id="detail-modal-badge" class="px-2 py-0.5 rounded bg-mivYellow-400 text-neutral-950 font-extrabold text-[10px] uppercase">Report Details</span>
+          <h3 id="detail-modal-title" class="text-base font-extrabold text-neutral-900 mt-0.5">Fire Protection Report</h3>
+        </div>
+        <button onclick="closeLogDetailModal()" class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="log-detail-body" class="space-y-4">
+        <!-- Populated dynamically in View or Amend mode -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 5: SUBMISSION SUCCESS & WHATSAPP SHARE MODAL                      -->
+  <!-- ======================================================================= -->
+  <div id="submit-success-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 text-center space-y-4">
+      <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center text-3xl shadow-inner">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div>
+        <h3 class="text-lg font-extrabold text-neutral-900">Report Submitted &amp; Synced!</h3>
+        <p id="submit-success-desc" class="text-xs text-neutral-500 mt-1">Saved locally and queued for Dropbox cloud sync.</p>
+      </div>
+      <div class="space-y-2.5 pt-1">
+        <button id="submit-whatsapp-btn" class="btn-android w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-md flex items-center justify-center gap-2">
+          <i class="fa-brands fa-whatsapp text-lg"></i> Share Summary to WhatsApp
+        </button>
+        <button onclick="closeSubmitSuccessModal(true)" class="btn-android w-full py-2.5 rounded-xl bg-mivYellow-500 text-neutral-950 font-extrabold text-xs">
+          View in My Logs
+        </button>
+        <button onclick="closeSubmitSuccessModal(false)" class="w-full py-2 text-xs font-bold text-neutral-500 hover:text-neutral-800">
+          Start Another Inspection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Android Floating Toast Container -->
+  <div id="toast-container" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-md px-4"></div>
+
+  <!-- ======================================================================= -->
+  <!-- APPLICATION LOGIC & DROPBOX CONTENT API v2 SYNC ENGINE                  -->
+  <!-- ======================================================================= -->
+  <script>
+    // =========================================================================
+    // 1. DEFAULT STATE & REALISTIC MIV FARM DATA
+    // =========================================================================
+    const STORAGE_KEY = 'miv_fire_protection_app_state_v1';
+    const DBX_CREDS_KEY = 'miv_dropbox_credentials_v1';
+    const PRIMARY_DBX_PATH = '/data/fireprotection.json';
+
+    const DEFAULT_DATA = {
+      version: 1,
+      lastUpdated: new Date().toISOString(),
+      adminPassword: '1234',
+      farms: [
+        {
+          id: 'farm_a',
+          name: 'Farm A - Pilah Layer Farm',
+          requiredExtinguishers: 12,
+          houses: [
+            { id: 'h_a1', houseNumber: 'House 1', location: 'Layer House 1 Entrance' },
+            { id: 'h_a2', houseNumber: 'House 2', location: 'Layer House 2 Entrance' },
+            { id: 'h_a3', houseNumber: 'House 3', location: 'Layer House 3 Rear' },
+            { id: 'h_a4', houseNumber: 'Store 1', location: 'Main Feed & Chemical Store' },
+            { id: 'h_a5', houseNumber: 'Pump House A', location: 'Main Hydrant Diesel Pump Room' },
+            { id: 'h_a6', houseNumber: 'Genset Room', location: 'Standby Generator Shed' }
+          ]
+        },
+        {
+          id: 'farm_b',
+          name: 'Farm B - Johol Breeder Farm',
+          requiredExtinguishers: 8,
+          houses: [
+            { id: 'h_b1', houseNumber: 'House 1', location: 'Breeder House 1 North' },
+            { id: 'h_b2', houseNumber: 'House 2', location: 'Breeder House 2 South' },
+            { id: 'h_b3', houseNumber: 'Egg Store', location: 'Hatchery & Egg Grading Room' },
+            { id: 'h_b4', houseNumber: 'Pump House B', location: 'East Hydrant Booster Station' }
+          ]
+        },
+        {
+          id: 'farm_c',
+          name: 'Farm C - Bahau Broiler Farm',
+          requiredExtinguishers: 10,
+          houses: [
+            { id: 'h_c1', houseNumber: 'House 1', location: 'Closed House 1 Control Panel' },
+            { id: 'h_c2', houseNumber: 'House 2', location: 'Closed House 2 Control Panel' },
+            { id: 'h_c3', houseNumber: 'House 3', location: 'Closed House 3 Exhaust End' },
+            { id: 'h_c4', houseNumber: 'Workshop', location: 'Maintenance & Diesel Skid Tank' }
+          ]
+        }
+      ],
+      selectionMenus: {
+        inspectors: [
+          'Ahmad Razak (Safety Officer)',
+          'Suresh Kumar (Farm Supervisor)',
+          'Lim Wei Jie (Maintenance Tech)',
+          'Mohd Faizal (Senior Operator)',
+          'Ravi Chandran (Fire Warden)'
+        ],
+        pressureGauges: [
+          'Normal',
+          'Recharge/Empty'
+        ],
+        safetySeals: [
+          'Sealed',
+          'No Seal'
+        ],
+        conditions: [
+          'Good',
+          'Expired',
+          'Empty'
+        ],
+        hydrantTypes: [
+          'Diesel',
+          'Electric'
+        ]
+      },
+      reports: []
+    };
+
+    // Normalize legacy "(Green)" / "(Red)" labels on pressure gauge values
+    function normalizePressureLabel(label) {
+      if (!label) return label;
+      return String(label)
+        .replace(/\s*\(Green\)/gi, '')
+        .replace(/\s*\(Red\)/gi, '')
+        .trim();
+    }
+
+    // Runtime App State
+    let appState = loadLocalState();
+    let dbxCreds = loadDropboxCreds();
+    let currentTab = 'daily';
+    let currentRole = 'user'; // 'user' | 'admin'
+    let isAdminUnlocked = false;
+    let selectedFarmId = appState.farms[0]?.id || '';
+    let selectedPressureGauge = '';
+    let selectedHydrantType = '';
+
+    // Draft Checklist Arrays for Tab 1
+    let draftExtinguishers = [];
+    let draftHydrants = [];
+
+    // Pending Password Action Callback
+    let pendingPasswordCallback = null;
+    let pollingTimer = null;
+    let isSyncing = false;
+
+    // =========================================================================
+    // 2. LOCAL STORAGE & URL HASH (#sync=...) BOOT HYDRATION
+    // =========================================================================
+    function loadLocalState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return JSON.parse(JSON.stringify(DEFAULT_DATA));
+        const parsed = JSON.parse(raw);
+        const merged = {
+          ...JSON.parse(JSON.stringify(DEFAULT_DATA)),
+          ...parsed,
+          selectionMenus: {
+            ...DEFAULT_DATA.selectionMenus,
+            ...(parsed.selectionMenus || {})
+          }
+        };
+        if (Array.isArray(merged.selectionMenus.pressureGauges)) {
+          merged.selectionMenus.pressureGauges = merged.selectionMenus.pressureGauges.map(normalizePressureLabel);
+        }
+        return merged;
+      } catch (e) {
+        console.error('Error loading local state:', e);
+        return JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+    }
+
+    function saveLocalState() {
+      try {
+        appState.lastUpdated = new Date().toISOString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.error('Failed saving local state:', e);
+      }
+    }
+
+    function loadDropboxCreds() {
+      try {
+        const raw = localStorage.getItem(DBX_CREDS_KEY);
+        return raw ? JSON.parse(raw) : {
+          refreshToken: '',
+          appKey: '',
+          appSecret: '',
+          accessToken: '',
+          tokenExpiresAt: 0
+        };
+      } catch (e) {
+        return { refreshToken: '', appKey: '', appSecret: '', accessToken: '', tokenExpiresAt: 0 };
+      }
+    }
+
+    function saveDropboxCreds() {
+      try {
+        localStorage.setItem(DBX_CREDS_KEY, JSON.stringify(dbxCreds));
+      } catch (e) {
+        console.error('Failed saving Dropbox credentials:', e);
+      }
+    }
+
+    // Parse 1-Tap New Device Sync Link from URL hash (#sync=...) or query (?sync=...)
+    function parseMagicSyncLinkFromURL() {
+      try {
+        const hash = window.location.hash || '';
+        const search = window.location.search || '';
+        let encoded = '';
+
+        if (hash.includes('sync=')) {
+          encoded = hash.split('sync=')[1].split('&')[0];
+        } else if (search.includes('sync=')) {
+          encoded = search.split('sync=')[1].split('&')[0];
+        }
+
+        if (encoded) {
+          const decodedJson = decodeURIComponent(atob(decodeURIComponent(encoded)));
+          const payload = JSON.parse(decodedJson);
+          if (payload && (payload.refreshToken || payload.accessToken)) {
+            dbxCreds.refreshToken = payload.refreshToken || dbxCreds.refreshToken || '';
+            dbxCreds.appKey = payload.appKey || dbxCreds.appKey || '';
+            dbxCreds.appSecret = payload.appSecret || dbxCreds.appSecret || '';
+            dbxCreds.accessToken = payload.accessToken || dbxCreds.accessToken || '';
+            dbxCreds.tokenExpiresAt = 0; // Force fresh token check if refresh token exists
+            saveDropboxCreds();
+            // Clean URL hash without reloading
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+            showToast('1-Tap Device Sync Credentials Imported!', 'success');
+          }
+        }
+      } catch (err) {
+        console.warn('Could not parse sync link payload:', err);
+      }
+    }
+
+    function generateMagicSyncLink() {
+      const payload = {
+        refreshToken: dbxCreds.refreshToken || '',
+        appKey: dbxCreds.appKey || '',
+        appSecret: dbxCreds.appSecret || '',
+        accessToken: dbxCreds.accessToken || ''
+      };
+      const b64 = btoa(encodeURIComponent(JSON.stringify(payload)));
+      const baseUrl = window.location.href.split('#')[0].split('?')[0];
+      return `${baseUrl}#sync=${encodeURIComponent(b64)}`;
+    }
+
+    // =========================================================================
+    // 3. DROPBOX CONTENT API v2 ENGINE (PKCE + CLIENT_SECRET REFRESH & DUAL-PATH)
+    // =========================================================================
+    function hasDropboxCredentials() {
+      return Boolean((dbxCreds.refreshToken && dbxCreds.appKey) || dbxCreds.accessToken);
+    }
+
+    function updateDropboxStatusUI(status, text) {
+      const dot = document.getElementById('dropbox-status-dot');
+      const label = document.getElementById('dropbox-status-text');
+      if (!dot || !label) return;
+
+      dot.className = 'w-2 h-2 rounded-full ';
+      if (status === 'connected') {
+        dot.className += 'bg-emerald-400 animate-pulse';
+      } else if (status === 'syncing') {
+        dot.className += 'bg-mivYellow-300 animate-ping';
+      } else if (status === 'error') {
+        dot.className += 'bg-red-400';
+      } else {
+        dot.className += 'bg-mivYellow-400';
+      }
+      label.textContent = text;
+    }
+
+    // Obtain valid OAuth2 Access Token (supports PKCE refresh without secret AND standard client_secret refresh)
+    async function getValidDropboxAccessToken() {
+      const now = Date.now();
+      if (dbxCreds.accessToken && (!dbxCreds.refreshToken || now < (dbxCreds.tokenExpiresAt - 60000))) {
+        return dbxCreds.accessToken;
+      }
+
+      if (dbxCreds.refreshToken && dbxCreds.appKey) {
+        const params = new URLSearchParams();
+        params.append('grant_type', 'refresh_token');
+        params.append('refresh_token', dbxCreds.refreshToken.trim());
+        params.append('client_id', dbxCreds.appKey.trim());
+        if (dbxCreds.appSecret && dbxCreds.appSecret.trim() !== '') {
+          params.append('client_secret', dbxCreds.appSecret.trim());
+        }
+
+        const resp = await fetch('https://api.dropbox.com/oauth2/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString()
+        });
+
+        if (!resp.ok) {
+          const errText = await resp.text();
+          throw new Error(`OAuth2 Refresh Failed (${resp.status}): ${errText}`);
+        }
+
+        const data = await resp.json();
+        dbxCreds.accessToken = data.access_token;
+        dbxCreds.tokenExpiresAt = Date.now() + ((data.expires_in || 14400) * 1000);
+        saveDropboxCreds();
+        return dbxCreds.accessToken;
+      }
+
+      if (dbxCreds.accessToken) {
+        return dbxCreds.accessToken.trim();
+      }
+
+      throw new Error('No Dropbox credentials configured');
+    }
+
+    // Download JSON file from Dropbox Content API v2
+    async function downloadDropboxJson(token, path) {
+      const resp = await fetch('https://content.dropboxapi.com/2/files/download', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Dropbox-API-Arg': JSON.stringify({ path })
+        }
+      });
+
+      if (resp.status === 409) {
+        // File does not exist yet on Dropbox
+        return null;
+      }
+      if (!resp.ok) {
+        throw new Error(`Dropbox download error (${resp.status})`);
+      }
+      return await resp.json();
+    }
+
+    // Upload JSON file to Dropbox Content API v2
+    async function uploadDropboxJson(token, path, dataObj) {
+      const resp = await fetch('https://content.dropboxapi.com/2/files/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Dropbox-API-Arg': JSON.stringify({
+            path,
+            mode: 'overwrite',
+            autorename: false,
+            mute: true
+          }),
+          'Content-Type': 'application/octet-stream'
+        },
+        body: JSON.stringify(dataObj, null, 2)
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text();
+        throw new Error(`Dropbox upload to ${path} failed (${resp.status}): ${errText}`);
+      }
+      return await resp.json();
+    }
+
+    // Non-destructive merge of remote cloud state with local state
+    function mergeRemoteCloudData(remoteData) {
+      if (!remoteData || typeof remoteData !== 'object') return false;
+      let changed = false;
+
+      const fpPayload = remoteData;
+
+      if (Array.isArray(fpPayload.farms) && fpPayload.farms.length > 0) {
+        appState.farms = fpPayload.farms;
+        changed = true;
+      }
+      if (fpPayload.selectionMenus && typeof fpPayload.selectionMenus === 'object') {
+        appState.selectionMenus = {
+          ...appState.selectionMenus,
+          ...fpPayload.selectionMenus
+        };
+        if (Array.isArray(appState.selectionMenus.pressureGauges)) {
+          appState.selectionMenus.pressureGauges = appState.selectionMenus.pressureGauges.map(normalizePressureLabel);
+        }
+        changed = true;
+      }
+      if (fpPayload.adminPassword) {
+        appState.adminPassword = fpPayload.adminPassword;
+      }
+
+      // Non-destructive merge of reports by ID (keeps latest updatedAt)
+      if (Array.isArray(fpPayload.reports)) {
+        const reportMap = new Map();
+        appState.reports.forEach(r => reportMap.set(r.id, r));
+        fpPayload.reports.forEach(remoteRep => {
+          const localRep = reportMap.get(remoteRep.id);
+          if (!localRep) {
+            reportMap.set(remoteRep.id, remoteRep);
+            changed = true;
+          } else {
+            const remoteTime = new Date(remoteRep.updatedAt || remoteRep.createdAt || 0).getTime();
+            const localTime = new Date(localRep.updatedAt || localRep.createdAt || 0).getTime();
+            if (remoteTime > localTime) {
+              reportMap.set(remoteRep.id, remoteRep);
+              changed = true;
+            }
+          }
+        });
+        appState.reports = Array.from(reportMap.values()).sort((a, b) =>
+          new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
+        );
+      }
+
+      if (changed) {
+        saveLocalState();
+        refreshAllUI();
+      }
+      return changed;
+    }
+
+    // Hydrate from Dropbox on Boot & Background Polling (/data/fireprotection.json ONLY)
+    async function hydrateFromDropbox(isBackground = false) {
+      if (!hasDropboxCredentials()) {
+        updateDropboxStatusUI('offline', 'Local Mode • Setup Sync');
+        return;
+      }
+      if (isSyncing) return;
+      isSyncing = true;
+
+      const pollBadge = document.getElementById('polling-indicator');
+      if (isBackground && pollBadge) pollBadge.classList.replace('hidden', 'inline-flex');
+      if (!isBackground) updateDropboxStatusUI('syncing', 'Fetching Cloud Data...');
+
+      try {
+        const token = await getValidDropboxAccessToken();
+        const remoteData = await downloadDropboxJson(token, PRIMARY_DBX_PATH);
+
+        if (remoteData) {
+          mergeRemoteCloudData(remoteData);
+          const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          updateDropboxStatusUI('connected', `Dropbox Synced • ${timeStr}`);
+          if (!isBackground) showToast('Synced with Dropbox Cloud!', 'success');
+        } else {
+          // Initialize /data/fireprotection.json on Dropbox if it does not exist yet
+          await pushToDropbox(false, token);
+          updateDropboxStatusUI('connected', 'Dropbox Initialized');
+        }
+      } catch (err) {
+        console.warn('Dropbox hydration notice:', err.message);
+        updateDropboxStatusUI('error', 'Sync Retry Needed');
+        if (!isBackground) showToast(`Dropbox Sync Error: ${err.message}`, 'error');
+      } finally {
+        isSyncing = false;
+        if (pollBadge) pollBadge.classList.replace('inline-flex', 'hidden');
+      }
+    }
+
+    // Push current appState strictly to /data/fireprotection.json
+    async function pushToDropbox(notifyUser = false, existingToken = null) {
+      saveLocalState();
+      if (!hasDropboxCredentials()) {
+        if (notifyUser) showToast('Saved locally. Configure Dropbox to sync cloud.', 'info');
+        return;
+      }
+
+      updateDropboxStatusUI('syncing', 'Uploading to Dropbox...');
+      try {
+        const token = existingToken || await getValidDropboxAccessToken();
+        await uploadDropboxJson(token, PRIMARY_DBX_PATH, appState);
+
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        updateDropboxStatusUI('connected', `Dropbox Synced • ${timeStr}`);
+        if (notifyUser) showToast('Auto-synced to Dropbox successfully!', 'success');
+      } catch (err) {
+        console.error('Dropbox push failed:', err);
+        updateDropboxStatusUI('error', 'Cloud Upload Failed');
+        if (notifyUser) showToast(`Dropbox Upload Failed: ${err.message}`, 'error');
+      }
+    }
+
+    function syncNow() {
+      if (!hasDropboxCredentials()) {
+        openDropboxModal();
+        return;
+      }
+      pushToDropbox(true).then(() => hydrateFromDropbox(true));
+    }
+
+    function startBackgroundPolling() {
+      if (pollingTimer) clearInterval(pollingTimer);
+      // Non-destructive multi-device background polling every 20 seconds
+      pollingTimer = setInterval(() => {
+        if (hasDropboxCredentials() && !document.hidden) {
+          hydrateFromDropbox(true);
+        }
+      }, 20000);
+    }
+
+    // =========================================================================
+    // 4. DROPBOX MODAL CONTROLS
+    // =========================================================================
+    function openDropboxModal() {
+      document.getElementById('dbx-refresh-token').value = dbxCreds.refreshToken || '';
+      document.getElementById('dbx-app-key').value = dbxCreds.appKey || '';
+      document.getElementById('dbx-app-secret').value = dbxCreds.appSecret || '';
+      document.getElementById('dbx-access-token').value = dbxCreds.accessToken || '';
+      document.getElementById('dbx-sync-link-preview').value = generateMagicSyncLink();
+      document.getElementById('dropbox-modal').classList.remove('hidden');
+    }
+
+    function closeDropboxModal() {
+      document.getElementById('dropbox-modal').classList.add('hidden');
+    }
+
+    function saveDropboxConfigAndConnect() {
+      dbxCreds.refreshToken = document.getElementById('dbx-refresh-token').value.trim();
+      dbxCreds.appKey = document.getElementById('dbx-app-key').value.trim();
+      dbxCreds.appSecret = document.getElementById('dbx-app-secret').value.trim();
+      dbxCreds.accessToken = document.getElementById('dbx-access-token').value.trim();
+      dbxCreds.tokenExpiresAt = 0;
+      saveDropboxCreds();
+      document.getElementById('dbx-sync-link-preview').value = generateMagicSyncLink();
+      closeDropboxModal();
+      hydrateFromDropbox(false);
+    }
+
+    function copyDeviceSyncLink() {
+      // Save current form inputs into creds first so link reflects latest entries
+      dbxCreds.refreshToken = document.getElementById('dbx-refresh-token').value.trim();
+      dbxCreds.appKey = document.getElementById('dbx-app-key').value.trim();
+      dbxCreds.appSecret = document.getElementById('dbx-app-secret').value.trim();
+      dbxCreds.accessToken = document.getElementById('dbx-access-token').value.trim();
+      saveDropboxCreds();
+
+      const link = generateMagicSyncLink();
+      const input = document.getElementById('dbx-sync-link-preview');
+      input.value = link;
+      input.select();
+      input.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      showToast('1-Tap Sync Link Copied to Clipboard!', 'success');
+    }
+
+    // =========================================================================
+    // 5. NAVIGATION, ROLE SWITCHER & PASSWORD GATE ("1234")
+    // =========================================================================
+    function switchTab(tabName) {
+      currentTab = tabName;
+      ['daily', 'logs', 'executive', 'admin'].forEach(t => {
+        const sec = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`nav-btn-${t}`);
+        if (!sec || !btn) return;
+        const pill = btn.querySelector('.nav-pill');
+        if (t === tabName) {
+          sec.classList.remove('hidden');
+          btn.classList.add('text-mivRed-700');
+          btn.classList.remove('text-neutral-500');
+          pill.classList.add('bg-mivYellow-400', 'text-mivRed-900', 'shadow-xs');
+        } else {
+          sec.classList.add('hidden');
+          btn.classList.remove('text-mivRed-700');
+          btn.classList.add('text-neutral-500');
+          pill.classList.remove('bg-mivYellow-400', 'text-mivRed-900', 'shadow-xs');
+        }
+      });
+
+      if (tabName === 'logs') renderLogs();
+      if (tabName === 'executive') renderExecutiveReport();
+      if (tabName === 'admin') renderAdminPanel();
+    }
+
+    function openRoleModal() {
+      document.getElementById('role-admin-pass-box').classList.add('hidden');
+      document.getElementById('role-admin-pass-input').value = '';
+      document.getElementById('role-modal').classList.remove('hidden');
+    }
+
+    function closeRoleModal() {
+      document.getElementById('role-modal').classList.add('hidden');
+    }
+
+    function selectRole(role) {
+      currentRole = role;
+      const badgeLabel = document.getElementById('role-badge-label');
+      const badgeIcon = document.getElementById('role-badge-icon');
+      if (role === 'admin') {
+        isAdminUnlocked = true;
+        badgeLabel.textContent = 'Admin';
+        badgeIcon.className = 'fa-solid fa-user-gear';
+        closeRoleModal();
+        switchTab('admin');
+        showToast('Switched to Admin Mode', 'success');
+      } else {
+        badgeLabel.textContent = 'User';
+        badgeIcon.className = 'fa-solid fa-user-shield';
+        closeRoleModal();
+        switchTab('daily');
+        showToast('Switched to User Inspector Mode', 'info');
+      }
+    }
+
+    function promptRoleAdmin() {
+      if (isAdminUnlocked) {
+        selectRole('admin');
+        return;
+      }
+      document.getElementById('role-admin-pass-box').classList.remove('hidden');
+      document.getElementById('role-admin-pass-input').focus();
+    }
+
+    function confirmRoleAdmin() {
+      const val = document.getElementById('role-admin-pass-input').value.trim();
+      if (val === appState.adminPassword) {
+        selectRole('admin');
+      } else {
+        showToast('Incorrect Admin Password!', 'error');
+      }
+    }
+
+    function unlockAdminTab() {
+      const val = document.getElementById('admin-pass-input').value.trim();
+      if (val === appState.adminPassword) {
+        isAdminUnlocked = true;
+        currentRole = 'admin';
+        document.getElementById('role-badge-label').textContent = 'Admin';
+        document.getElementById('admin-pass-input').value = '';
+        renderAdminPanel();
+        showToast('Admin Panel Unlocked', 'success');
+      } else {
+        showToast('Invalid Admin Password!', 'error');
+      }
+    }
+
+    function lockAdminSession() {
+      isAdminUnlocked = false;
+      currentRole = 'user';
+      document.getElementById('role-badge-label').textContent = 'User';
+      renderAdminPanel();
+      showToast('Admin Session Locked', 'info');
+    }
+
+    // Reusable Password Gate Modal for Amend / Delete in My Logs
+    function requestPasswordAuthorization(title, subtitle, onSuccess) {
+      pendingPasswordCallback = onSuccess;
+      document.getElementById('pass-gate-title').textContent = title;
+      document.getElementById('pass-gate-subtitle').textContent = subtitle;
+      const inp = document.getElementById('pass-gate-input');
+      inp.value = '';
+      document.getElementById('password-gate-modal').classList.remove('hidden');
+      setTimeout(() => inp.focus(), 100);
+    }
+
+    function closePasswordGate() {
+      pendingPasswordCallback = null;
+      document.getElementById('password-gate-modal').classList.add('hidden');
+    }
+
+    function submitPasswordGate() {
+      const val = document.getElementById('pass-gate-input').value.trim();
+      if (val === appState.adminPassword) {
+        const cb = pendingPasswordCallback;
+        closePasswordGate();
+        if (typeof cb === 'function') cb();
+      } else {
+        showToast('Incorrect Password!', 'error');
+      }
+    }
+
+    // =========================================================================
+    // 6. TAB 1: DAILY REPORT FORM, QUICK-TAP HOUSE PILLS & CHECKLIST LOGIC
+    // =========================================================================
+    function populateFarmSelectors() {
+      if (!appState.farms || appState.farms.length === 0) return;
+      if (!appState.farms.some(f => f.id === selectedFarmId)) {
+        selectedFarmId = appState.farms[0].id;
+      }
+
+      const activeFarm = appState.farms.find(f => f.id === selectedFarmId) || appState.farms[0];
+      const headerFarmEl = document.getElementById('header-active-farm');
+      if (headerFarmEl && activeFarm) headerFarmEl.textContent = activeFarm.name;
+
+      // Daily Input Farm Select
+      const dailySelect = document.getElementById('input-farm-select');
+      if (dailySelect) {
+        dailySelect.innerHTML = appState.farms.map(f =>
+          `<option value="${escapeAttr(f.id)}" ${f.id === selectedFarmId ? 'selected' : ''}>${escapeHtml(f.name)}</option>`
+        ).join('');
+      }
+
+      // Logs Farm Filter
+      const logsFilter = document.getElementById('logs-farm-filter');
+      if (logsFilter) {
+        const prev = logsFilter.value || 'ALL';
+        logsFilter.innerHTML = `<option value="ALL">All Farm Groups</option>` +
+          appState.farms.map(f => `<option value="${escapeAttr(f.id)}" ${f.id === prev ? 'selected' : ''}>${escapeHtml(f.name)}</option>`).join('');
+      }
+
+      // Executive Farm Filter
+      const execFilter = document.getElementById('exec-farm-filter');
+      if (execFilter) {
+        const prev = execFilter.value || 'ALL';
+        execFilter.innerHTML = `<option value="ALL">All Farms (Consolidated)</option>` +
+          appState.farms.map(f => `<option value="${escapeAttr(f.id)}" ${f.id === prev ? 'selected' : ''}>${escapeHtml(f.name)}</option>`).join('');
+      }
+
+      // Admin Auto Report Farm Select
+      const adminAutoFarm = document.getElementById('admin-auto-report-farm');
+      if (adminAutoFarm) {
+        const prev = adminAutoFarm.value || 'ALL';
+        adminAutoFarm.innerHTML = `<option value="ALL">All Farms (Company-Wide Audit)</option>` +
+          appState.farms.map(f => `<option value="${escapeAttr(f.id)}" ${f.id === prev ? 'selected' : ''}>${escapeHtml(f.name)}</option>`).join('');
+      }
+
+      // Admin House Manager Farm Select
+      const adminHouseFarm = document.getElementById('admin-house-farm-select');
+      if (adminHouseFarm) {
+        const prev = adminHouseFarm.value || selectedFarmId;
+        adminHouseFarm.innerHTML = appState.farms.map(f =>
+          `<option value="${escapeAttr(f.id)}" ${f.id === prev ? 'selected' : ''}>${escapeHtml(f.name)}</option>`
+        ).join('');
+      }
+
+      populateFarmLocationDropdowns();
+    }
+
+    function onFarmChange(newFarmId) {
+      selectedFarmId = newFarmId;
+      const activeFarm = appState.farms.find(f => f.id === selectedFarmId);
+      const headerFarmEl = document.getElementById('header-active-farm');
+      if (headerFarmEl && activeFarm) headerFarmEl.textContent = activeFarm.name;
+      populateFarmLocationDropdowns();
+    }
+
+    function populateFarmLocationDropdowns() {
+      const farm = appState.farms.find(f => f.id === selectedFarmId) || appState.farms[0];
+      const extLocSelect = document.getElementById('ext-location');
+      const hydLocSelect = document.getElementById('hyd-location');
+
+      if (!farm) return;
+      const houses = farm.houses || [];
+      const locLabels = houses.map(h => `${h.houseNumber} - ${h.location}`);
+
+      const prevExt = extLocSelect && locLabels.includes(extLocSelect.value) ? extLocSelect.value : '';
+      const prevHyd = hydLocSelect && locLabels.includes(hydLocSelect.value) ? hydLocSelect.value : '';
+
+      if (extLocSelect) {
+        extLocSelect.innerHTML = `<option value="" disabled ${!prevExt ? 'selected' : ''}>-- Select location (e.g. House 1) --</option>` +
+          locLabels.map(lbl => `<option value="${escapeAttr(lbl)}" ${lbl === prevExt ? 'selected' : ''}>${escapeHtml(lbl)}</option>`).join('');
+      }
+      if (hydLocSelect) {
+        hydLocSelect.innerHTML = `<option value="" disabled ${!prevHyd ? 'selected' : ''}>-- Select location (e.g. Pump House) --</option>` +
+          locLabels.map(lbl => `<option value="${escapeAttr(lbl)}" ${lbl === prevHyd ? 'selected' : ''}>${escapeHtml(lbl)}</option>`).join('');
+      }
+    }
+
+    function populateSelectionMenusUI() {
+      const menus = appState.selectionMenus || {};
+
+      // Pressure Gauge Pills (Unselected by default, Green/Red shadow accents preserved)
+      const gauges = (menus.pressureGauges || ['Normal', 'Recharge/Empty']).map(normalizePressureLabel);
+      if (selectedPressureGauge && !gauges.includes(selectedPressureGauge)) {
+        selectedPressureGauge = '';
+      }
+      const pressureContainer = document.getElementById('ext-pressure-pills');
+      if (pressureContainer) {
+        pressureContainer.innerHTML = gauges.map(g => {
+          const isSelected = g === selectedPressureGauge;
+          const isGreen = g.toLowerCase().includes('normal');
+          return `
+            <button type="button" onclick="selectPressureGauge('${escapeAttr(g)}')"
+              class="btn-android py-2.5 px-3 rounded-xl border-2 text-xs font-extrabold flex items-center justify-center gap-2 transition ${
+                isSelected
+                  ? (isGreen
+                      ? 'bg-emerald-600 border-emerald-700 text-white shadow-md shadow-emerald-600/30'
+                      : 'bg-mivRed-700 border-mivRed-800 text-white shadow-md shadow-mivRed-700/30')
+                  : (isGreen
+                      ? 'bg-emerald-50/60 border-emerald-200 text-emerald-900 shadow-sm shadow-emerald-500/15 hover:bg-emerald-100/70'
+                      : 'bg-red-50/60 border-red-200 text-mivRed-900 shadow-sm shadow-red-500/15 hover:bg-red-100/70')
+              }">
+              <span class="w-2.5 h-2.5 rounded-full ${isGreen ? 'bg-emerald-500' : 'bg-red-500'} border border-white"></span>
+              <span>${escapeHtml(g)}</span>
+            </button>
+          `;
+        }).join('');
+      }
+
+      // Safety Seal Select (Shadow example placeholder)
+      const sealSelect = document.getElementById('ext-seal');
+      if (sealSelect) {
+        const prevSeal = sealSelect.value;
+        const seals = menus.safetySeals || ['Sealed', 'No Seal'];
+        sealSelect.innerHTML = `<option value="" disabled ${!prevSeal ? 'selected' : ''}>-- Select Seal (e.g. Sealed) --</option>` +
+          seals.map(s => `<option value="${escapeAttr(s)}" ${s === prevSeal ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('');
+      }
+
+      // Condition Select (Shadow example placeholder)
+      const condSelect = document.getElementById('ext-condition');
+      if (condSelect) {
+        const prevCond = condSelect.value;
+        const conds = menus.conditions || ['Good', 'Expired', 'Empty'];
+        condSelect.innerHTML = `<option value="" disabled ${!prevCond ? 'selected' : ''}>-- Select Condition (e.g. Good) --</option>` +
+          conds.map(c => `<option value="${escapeAttr(c)}" ${c === prevCond ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('');
+      }
+
+      // Workers Name Inspector Select (Shadow example placeholder)
+      const inspSelect = document.getElementById('input-inspector-select');
+      if (inspSelect) {
+        const inspectors = menus.inspectors || ['Safety Officer'];
+        const prev = inspSelect.value;
+        inspSelect.innerHTML = `<option value="" disabled ${!prev ? 'selected' : ''}>-- Select Inspector (e.g. Ahmad Razak) --</option>` +
+          inspectors.map(ins =>
+            `<option value="${escapeAttr(ins)}" ${ins === prev ? 'selected' : ''}>${escapeHtml(ins)}</option>`
+          ).join('');
+      }
+
+      // Fire Hydrant Type Pills (Electric vs Diesel)
+      const hydTypes = menus.hydrantTypes || ['Diesel', 'Electric'];
+      if (selectedHydrantType && !hydTypes.includes(selectedHydrantType)) {
+        selectedHydrantType = '';
+      }
+      const hydTypeContainer = document.getElementById('hyd-type-pills');
+      if (hydTypeContainer) {
+        hydTypeContainer.innerHTML = hydTypes.map(ht => {
+          const isSelected = ht === selectedHydrantType;
+          const isElectric = ht.toLowerCase().includes('electric');
+          return `
+            <button type="button" onclick="selectHydrantType('${escapeAttr(ht)}')"
+              class="btn-android py-2.5 px-3 rounded-xl border-2 text-xs font-extrabold flex items-center justify-center gap-2 transition ${
+                isSelected
+                  ? (isElectric
+                      ? 'bg-blue-600 border-blue-700 text-white shadow-md shadow-blue-600/25'
+                      : 'bg-mivRed-700 border-mivRed-800 text-white shadow-md shadow-mivRed-700/25')
+                  : 'bg-neutral-50 border-neutral-200 text-neutral-800 hover:bg-neutral-100'
+              }">
+              <i class="fa-solid ${isElectric ? 'fa-bolt text-mivYellow-400' : 'fa-gas-pump text-mivRed-600'} ${isSelected ? 'text-white' : ''}"></i>
+              <span>${escapeHtml(ht)}</span>
+            </button>
+          `;
+        }).join('');
+      }
+
+      const dieselWrapper = document.getElementById('hyd-diesel-wrapper');
+      if (dieselWrapper) {
+        const isElec = selectedHydrantType.toLowerCase().includes('electric');
+        dieselWrapper.classList.toggle('hidden', isElec);
+      }
+    }
+
+    function selectHydrantType(typeLabel) {
+      selectedHydrantType = typeLabel;
+      populateSelectionMenusUI();
+    }
+
+    function selectPressureGauge(gaugeLabel) {
+      selectedPressureGauge = normalizePressureLabel(gaugeLabel);
+      populateSelectionMenusUI();
+    }
+
+    function onExpiryDateChange(expiryVal) {
+      if (!expiryVal) return;
+      const refDate = document.getElementById('input-report-date')?.value || new Date().toISOString().split('T')[0];
+      const condSelect = document.getElementById('ext-condition');
+      if (expiryVal < refDate && condSelect) {
+        // Ensure "Expired" option exists and select it automatically
+        const expiredOpt = Array.from(condSelect.options).find(o => o.value.toLowerCase() === 'expired');
+        if (expiredOpt) {
+          condSelect.value = expiredOpt.value;
+          showToast('Past expiration date detected — Condition auto-set to Expired', 'info');
+        }
+      }
+    }
+
+    function syncDieselInputs(val) {
+      const num = Math.max(0, Math.min(100, parseInt(val, 10) || 0));
+      const rangeEl = document.getElementById('hyd-diesel-range');
+      const numEl = document.getElementById('hyd-diesel');
+      const dispEl = document.getElementById('hyd-diesel-display');
+      if (rangeEl) rangeEl.value = num;
+      if (numEl) numEl.value = num;
+      if (dispEl) dispEl.textContent = `${num}%`;
+    }
+
+    function addExtinguisherEntry() {
+      const location = document.getElementById('ext-location')?.value || '';
+      const safetySeal = document.getElementById('ext-seal')?.value || '';
+      const condition = document.getElementById('ext-condition')?.value || '';
+      const expiryDate = document.getElementById('ext-expiry-date')?.value || '';
+
+      if (!location) {
+        showToast('Please select Extinguisher Location!', 'error');
+        return;
+      }
+      if (!selectedPressureGauge) {
+        showToast('Please select Pressure Gauge!', 'error');
+        return;
+      }
+      if (!safetySeal) {
+        showToast('Please select Safety Pin / Seal!', 'error');
+        return;
+      }
+      if (!condition) {
+        showToast('Please select Condition!', 'error');
+        return;
+      }
+      if (!expiryDate) {
+        showToast('Please select Date of Expiration Date!', 'error');
+        return;
+      }
+
+      draftExtinguishers.push({
+        id: 'ext_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        location,
+        pressureGauge: normalizePressureLabel(selectedPressureGauge),
+        safetySeal,
+        condition,
+        expiryDate
+      });
+
+      // Reset inputs back to unselected shadow state
+      selectedPressureGauge = '';
+      document.getElementById('ext-location').value = '';
+      document.getElementById('ext-seal').value = '';
+      document.getElementById('ext-condition').value = '';
+      document.getElementById('ext-expiry-date').value = '';
+
+      populateFarmLocationDropdowns();
+      populateSelectionMenusUI();
+      renderDraftChecklists();
+      showToast('Fire Extinguisher added to checklist!', 'success');
+    }
+
+    function removeDraftExtinguisher(id) {
+      draftExtinguishers = draftExtinguishers.filter(item => item.id !== id);
+      renderDraftChecklists();
+    }
+
+    function addHydrantEntry() {
+      const location = document.getElementById('hyd-location')?.value || '';
+      const dieselRaw = document.getElementById('hyd-diesel')?.value;
+      const batteryRaw = document.getElementById('hyd-battery')?.value;
+      const runRaw = document.getElementById('hyd-test-run')?.value;
+      const hoseRaw = document.getElementById('hyd-hose-count')?.value;
+      const nozzleRaw = document.getElementById('hyd-nozzle-count')?.value;
+
+      if (!location) {
+        showToast('Please select Fire Hydrant Location!', 'error');
+        return;
+      }
+      if (!selectedHydrantType) {
+        showToast('Please select Fire Hydrant Type (Electric or Diesel)!', 'error');
+        return;
+      }
+      const isElectric = selectedHydrantType.toLowerCase().includes('electric');
+      if (!isElectric && (dieselRaw === '' || dieselRaw === null || dieselRaw === undefined)) {
+        showToast('Please enter Diesel Capacity %!', 'error');
+        return;
+      }
+
+      draftHydrants.push({
+        id: 'hyd_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        location,
+        hydrantType: selectedHydrantType,
+        dieselPercent: isElectric ? null : Math.max(0, Math.min(100, parseFloat(dieselRaw) || 0)),
+        batteryVoltage: parseFloat(batteryRaw) || 0,
+        testRunMinutes: parseInt(runRaw, 10) || 0,
+        hoseCount: parseInt(hoseRaw, 10) || 0,
+        nozzleCount: parseInt(nozzleRaw, 10) || 0
+      });
+
+      document.getElementById('hyd-location').value = '';
+      document.getElementById('hyd-diesel').value = '';
+      document.getElementById('hyd-diesel-range').value = 0;
+      const dispEl = document.getElementById('hyd-diesel-display');
+      if (dispEl) {
+        dispEl.textContent = '--%';
+        dispEl.className = 'px-2.5 py-0.5 rounded-lg bg-neutral-300 text-neutral-700 font-mono font-extrabold text-xs';
+      }
+      document.getElementById('hyd-battery').value = '';
+      document.getElementById('hyd-test-run').value = '';
+      document.getElementById('hyd-hose-count').value = '';
+      document.getElementById('hyd-nozzle-count').value = '';
+      selectedHydrantType = '';
+      populateSelectionMenusUI();
+      renderDraftChecklists();
+      showToast('Fire Hydrant added to checklist!', 'success');
+    }
+
+    function removeDraftHydrant(id) {
+      draftHydrants = draftHydrants.filter(item => item.id !== id);
+      renderDraftChecklists();
+    }
+
+    function calculateExtinguisherStats(list) {
+      let good = 0, empty = 0, expired = 0;
+      (list || []).forEach(item => {
+        const cond = String(item.condition || '').toLowerCase();
+        if (cond === 'good') good++;
+        else if (cond === 'empty') empty++;
+        else if (cond === 'expired') expired++;
+      });
+      return {
+        good,
+        empty,
+        expired,
+        total: (list || []).length
+      };
+    }
+
+    function renderDraftChecklists() {
+      const extListEl = document.getElementById('ext-added-list');
+      const hydListEl = document.getElementById('hyd-added-list');
+      const draftBadge = document.getElementById('draft-badge-count');
+
+      const totalChecked = draftExtinguishers.length + draftHydrants.length;
+      if (draftBadge) {
+        draftBadge.textContent = `${totalChecked} Checked`;
+      }
+
+      // Render Extinguisher Draft Cards
+      if (extListEl) {
+        if (draftExtinguishers.length === 0) {
+          extListEl.innerHTML = '';
+        } else {
+          extListEl.innerHTML = draftExtinguishers.map((item, idx) => {
+            const isNormal = item.pressureGauge.toLowerCase().includes('normal');
+            return `
+              <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-neutral-50 border border-neutral-200 text-xs">
+                <div class="min-w-0 space-y-0.5">
+                  <div class="font-extrabold text-neutral-900 truncate">${idx + 1}. ${escapeHtml(item.location)}</div>
+                  <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+                    <span class="px-2 py-0.5 rounded font-bold ${isNormal ? 'bg-emerald-100 text-emerald-800 shadow-xs shadow-emerald-500/20' : 'bg-red-100 text-mivRed-800 shadow-xs shadow-red-500/20'}">${escapeHtml(item.pressureGauge)}</span>
+                    <span class="px-2 py-0.5 rounded bg-neutral-200/70 text-neutral-700 font-semibold">${escapeHtml(item.safetySeal)}</span>
+                    <span class="px-2 py-0.5 rounded font-extrabold ${item.condition === 'Good' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-100 text-mivRed-800'}">${escapeHtml(item.condition)}</span>
+                    <span class="font-mono text-neutral-500">Exp: ${escapeHtml(item.expiryDate)}</span>
+                  </div>
+                </div>
+                <button type="button" onclick="removeDraftExtinguisher('${item.id}')" class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-mivRed-700 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // Render Hydrant Draft Cards
+      if (hydListEl) {
+        if (draftHydrants.length === 0) {
+          hydListEl.innerHTML = '';
+        } else {
+          hydListEl.innerHTML = draftHydrants.map((item, idx) => {
+            const hType = item.hydrantType || 'Diesel';
+            const isElec = hType.toLowerCase().includes('electric');
+            return `
+            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-mivYellow-50/60 border border-mivYellow-300 text-xs">
+              <div class="min-w-0 space-y-0.5">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-extrabold text-neutral-900 truncate">${idx + 1}. ${escapeHtml(item.location)}</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-extrabold shrink-0 ${isElec ? 'bg-blue-100 text-blue-800' : 'bg-mivRed-100 text-mivRed-800'}">
+                    ${escapeHtml(hType)}
+                  </span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 text-[11px] text-neutral-700 font-mono">
+                  ${!isElec && item.dieselPercent !== null ? `<span>Diesel: <strong>${item.dieselPercent}%</strong></span>` : ''}
+                  <span>Batt: <strong>${item.batteryVoltage}V</strong></span>
+                  <span>Run: <strong>${item.testRunMinutes}m</strong></span>
+                  <span>Hose/Nozzle: <strong>${item.hoseCount}/${item.nozzleCount}</strong></span>
+                </div>
+              </div>
+              <button type="button" onclick="removeDraftHydrant('${item.id}')" class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-mivRed-700 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            </div>
+          `;
+          }).join('');
+        }
+      }
+
+      // Update Live Summary Counters
+      const stats = calculateExtinguisherStats(draftExtinguishers);
+      const goodEl = document.getElementById('stat-ext-good');
+      const emptyEl = document.getElementById('stat-ext-empty');
+      const expEl = document.getElementById('stat-ext-expired');
+      const totEl = document.getElementById('stat-ext-total');
+      if (goodEl) goodEl.textContent = stats.good;
+      if (emptyEl) emptyEl.textContent = stats.empty;
+      if (expEl) expEl.textContent = stats.expired;
+      if (totEl) totEl.textContent = stats.total;
+    }
+
+    async function submitFireProtectionReport() {
+      if (draftExtinguishers.length === 0 && draftHydrants.length === 0) {
+        showToast('Please add at least one Fire Extinguisher or Fire Hydrant check!', 'error');
+        return;
+      }
+
+      const inspector = document.getElementById('input-inspector-select')?.value || '';
+      if (!inspector) {
+        showToast('Please select Workers Name Inspector!', 'error');
+        return;
+      }
+
+      const dateVal = document.getElementById('input-report-date')?.value || new Date().toISOString().split('T')[0];
+      const farm = appState.farms.find(f => f.id === selectedFarmId) || appState.farms[0];
+      const notes = document.getElementById('input-report-notes')?.value.trim() || '';
+
+      const newReport = {
+        id: 'rep_' + Date.now(),
+        date: dateVal,
+        farmId: farm ? farm.id : 'farm_default',
+        farmName: farm ? farm.name : 'MIV Farm',
+        inspector,
+        notes,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        extinguishers: JSON.parse(JSON.stringify(draftExtinguishers)),
+        hydrants: JSON.parse(JSON.stringify(draftHydrants))
+      };
+
+      appState.reports.unshift(newReport);
+
+      // Reset draft form & inspector selection
+      draftExtinguishers = [];
+      draftHydrants = [];
+      document.getElementById('input-report-notes').value = '';
+      document.getElementById('input-inspector-select').value = '';
+      renderDraftChecklists();
+
+      // Auto-sync to Dropbox (/data/fireprotection.json)
+      await pushToDropbox(false);
+
+      // Show Success Modal with WhatsApp Share hook
+      const waBtn = document.getElementById('submit-whatsapp-btn');
+      if (waBtn) {
+        waBtn.onclick = () => shareSingleReportToWhatsApp(newReport.id);
+      }
+      document.getElementById('submit-success-modal').classList.remove('hidden');
+    }
+
+    function closeSubmitSuccessModal(goToLogs) {
+      document.getElementById('submit-success-modal').classList.add('hidden');
+      if (goToLogs) {
+        switchTab('logs');
+      }
+    }
+
+    // =========================================================================
+    // 7. WHATSAPP SUMMARY SHARING (SUMMARY REPORT ONLY)
+    // =========================================================================
+    function formatReportWhatsAppText(rep) {
+      const stats = calculateExtinguisherStats(rep.extinguishers || []);
+      const farmObj = appState.farms.find(f => f.id === rep.farmId);
+      const reqExt = farmObj && farmObj.requiredExtinguishers !== undefined ? Number(farmObj.requiredExtinguishers) : 0;
+      const hydrants = rep.hydrants || [];
+      const hydCount = hydrants.length;
+      const electricCount = hydrants.filter(h => (h.hydrantType || 'Diesel').toLowerCase().includes('electric')).length;
+      const dieselHydrants = hydrants.filter(h => !(h.hydrantType || 'Diesel').toLowerCase().includes('electric'));
+
+      const avgDiesel = dieselHydrants.length > 0
+        ? Math.round(dieselHydrants.reduce((s, h) => s + (Number(h.dieselPercent) || 0), 0) / dieselHydrants.length)
+        : null;
+      const avgBatt = hydCount > 0
+        ? (hydrants.reduce((s, h) => s + (Number(h.batteryVoltage) || 0), 0) / hydCount).toFixed(1)
+        : '0.0';
+      const totalRunMins = hydrants.reduce((s, h) => s + (Number(h.testRunMinutes) || 0), 0);
+      const totalHoses = hydrants.reduce((s, h) => s + (Number(h.hoseCount) || 0), 0);
+      const totalNozzles = hydrants.reduce((s, h) => s + (Number(h.nozzleCount) || 0), 0);
+
+      let lines = [
+        `*MIV FIRE PROTECTION REPORT - SUMMARY*`,
+        `*Date:* ${rep.date}`,
+        `*Farm Group:* ${rep.farmName}`,
+        `*Inspector:* ${rep.inspector}`,
+        ``,
+        `*FIRE EXTINGUISHER SUMMARY*`,
+        `• Total Good: ${stats.good}`,
+        `• Total Empty: ${stats.empty}`,
+        `• Total Expired: ${stats.expired}`,
+        `• *Overall Total:* ${stats.total}`,
+        `• *Required Extinguisher:* ${reqExt}`,
+        ``,
+        `*FIRE HYDRANT SUMMARY*`,
+        `• Total Hydrants Checked: ${hydCount} (Diesel: ${dieselHydrants.length}, Electric: ${electricCount})`,
+        `• Avg Diesel Capacity: ${avgDiesel !== null ? `${avgDiesel}%` : 'N/A (Electric)'}`,
+        `• Avg Battery Voltage: ${avgBatt}V`,
+        `• Total Test Run Minutes: ${totalRunMins} mins`,
+        `• Total Fire Hoses: ${totalHoses}`,
+        `• Total Hose Nozzles: ${totalNozzles}`
+      ];
+
+      if (rep.notes) {
+        lines.push(``);
+        lines.push(`*Remarks:* ${rep.notes}`);
+      }
+
+      return lines.join('\n');
+    }
+
+    function shareSingleReportToWhatsApp(reportId) {
+      const rep = appState.reports.find(r => r.id === reportId);
+      if (!rep) return;
+      const text = formatReportWhatsAppText(rep);
+      openWhatsAppWithText(text);
+    }
+
+    function openWhatsAppWithText(text) {
+      // Copy to clipboard as convenience fallback
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch (_) {}
+
+      const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+      showToast('Opening WhatsApp & copied summary!', 'success');
+    }
+
+    // =========================================================================
+    // 8. TAB 2: MY LOGS PAGE (VIEW, WHATSAPP SHARE, AMEND & DELETE w/ 1234)
+    // =========================================================================
+    function renderLogs() {
+      const container = document.getElementById('logs-list-container');
+      const search = (document.getElementById('logs-search-input')?.value || '').toLowerCase();
+      const farmFilter = document.getElementById('logs-farm-filter')?.value || 'ALL';
+
+      const filtered = appState.reports.filter(r => {
+        if (farmFilter !== 'ALL' && r.farmId !== farmFilter) return false;
+        if (!search) return true;
+        const blob = `${r.date} ${r.farmName} ${r.inspector} ${r.notes || ''} ${(r.extinguishers || []).map(e => e.location).join(' ')}`.toLowerCase();
+        return blob.includes(search);
+      });
+
+      document.getElementById('logs-total-badge').textContent = `${filtered.length} Report${filtered.length === 1 ? '' : 's'}`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl shadow-android p-8 text-center space-y-2">
+            <i class="fa-solid fa-folder-open text-3xl text-neutral-300"></i>
+            <p class="text-sm font-bold text-neutral-600">No Fire Protection Reports Found</p>
+            <p class="text-xs text-neutral-400">Submit a daily report or clear search filters.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(rep => {
+        const stats = calculateExtinguisherStats(rep.extinguishers || []);
+        const hydrants = rep.hydrants || [];
+        const hydCount = hydrants.length;
+        const dieselHydrants = hydrants.filter(h => !(h.hydrantType || 'Diesel').toLowerCase().includes('electric'));
+        const avgDiesel = dieselHydrants.length > 0
+          ? Math.round(dieselHydrants.reduce((sum, h) => sum + (Number(h.dieselPercent) || 0), 0) / dieselHydrants.length)
+          : null;
+
+        return `
+          <div class="bg-white rounded-2xl shadow-android p-4 space-y-3 border-l-4 border-mivRed-600">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="px-2 py-0.5 rounded-md bg-mivYellow-400 text-neutral-950 font-mono font-extrabold text-[11px]">${escapeHtml(rep.date)}</span>
+                  <span class="text-xs font-extrabold text-mivRed-700 truncate">${escapeHtml(rep.farmName)}</span>
+                </div>
+                <div class="text-xs text-neutral-600 font-semibold mt-1">
+                  <i class="fa-solid fa-user-check text-neutral-400 mr-1"></i> ${escapeHtml(rep.inspector)}
+                </div>
+              </div>
+              <button onclick="shareSingleReportToWhatsApp('${rep.id}')" title="Share to WhatsApp"
+                class="btn-android px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shrink-0 shadow-xs">
+                <i class="fa-brands fa-whatsapp text-sm"></i> Share
+              </button>
+            </div>
+
+            <!-- Summary Counters Strip -->
+            <div class="grid grid-cols-5 gap-1.5 text-center bg-neutral-50 p-2 rounded-xl border border-neutral-100">
+              <div>
+                <span class="block text-[9px] font-bold text-neutral-400 uppercase">Good</span>
+                <span class="text-xs font-black text-emerald-600 font-mono">${stats.good}</span>
+              </div>
+              <div>
+                <span class="block text-[9px] font-bold text-neutral-400 uppercase">Empty</span>
+                <span class="text-xs font-black text-red-600 font-mono">${stats.empty}</span>
+              </div>
+              <div>
+                <span class="block text-[9px] font-bold text-neutral-400 uppercase">Expired</span>
+                <span class="text-xs font-black text-amber-600 font-mono">${stats.expired}</span>
+              </div>
+              <div>
+                <span class="block text-[9px] font-bold text-neutral-400 uppercase">Total Ext</span>
+                <span class="text-xs font-black text-neutral-900 font-mono">${stats.total}</span>
+              </div>
+              <div class="border-l border-neutral-200">
+                <span class="block text-[9px] font-bold text-neutral-400 uppercase">Hydrant</span>
+                <span class="text-xs font-black text-mivRed-700 font-mono">${hydCount}${avgDiesel !== null ? ` (${avgDiesel}%)` : ''}</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons: View, Amend (1234), Delete (1234) -->
+            <div class="grid grid-cols-3 gap-2 pt-1">
+              <button onclick="openViewLogModal('${rep.id}')" class="btn-android py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold text-xs flex items-center justify-center gap-1">
+                <i class="fa-solid fa-eye text-neutral-600"></i> View
+              </button>
+              <button onclick="promptAmendLog('${rep.id}')" class="btn-android py-2 rounded-xl bg-mivYellow-100 hover:bg-mivYellow-200 text-neutral-900 font-extrabold text-xs flex items-center justify-center gap-1">
+                <i class="fa-solid fa-pen-to-square text-mivRed-700"></i> Amend
+              </button>
+              <button onclick="promptDeleteLog('${rep.id}')" class="btn-android py-2 rounded-xl bg-red-50 hover:bg-red-100 text-mivRed-700 font-extrabold text-xs flex items-center justify-center gap-1">
+                <i class="fa-solid fa-trash-can"></i> Delete
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openViewLogModal(reportId) {
+      const rep = appState.reports.find(r => r.id === reportId);
+      if (!rep) return;
+      const stats = calculateExtinguisherStats(rep.extinguishers || []);
+
+      document.getElementById('detail-modal-badge').textContent = `Report • ${rep.date}`;
+      document.getElementById('detail-modal-title').textContent = rep.farmName;
+
+      const body = document.getElementById('log-detail-body');
+      body.innerHTML = `
+        <div class="bg-neutral-50 rounded-xl p-3 border border-neutral-200 text-xs space-y-1">
+          <div><strong>Inspector:</strong> ${escapeHtml(rep.inspector)}</div>
+          <div><strong>Date:</strong> ${escapeHtml(rep.date)}</div>
+          ${rep.notes ? `<div><strong>Remarks:</strong> ${escapeHtml(rep.notes)}</div>` : ''}
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-extrabold uppercase text-mivRed-700">Fire Extinguishers (${stats.total})</h4>
+            <span class="text-[11px] font-bold text-neutral-600">Good: ${stats.good} | Empty: ${stats.empty} | Expired: ${stats.expired}</span>
+          </div>
+          ${(rep.extinguishers || []).length === 0 ? '<p class="text-xs text-neutral-400">None recorded</p>' :
+            rep.extinguishers.map((e, i) => `
+              <div class="p-2.5 rounded-xl border border-neutral-200 text-xs space-y-1">
+                <div class="font-bold text-neutral-900">${i + 1}. ${escapeHtml(e.location)}</div>
+                <div class="flex flex-wrap gap-1.5 text-[11px]">
+                  <span class="px-2 py-0.5 rounded bg-neutral-100 font-semibold">${escapeHtml(e.pressureGauge)}</span>
+                  <span class="px-2 py-0.5 rounded bg-neutral-100 font-semibold">${escapeHtml(e.safetySeal)}</span>
+                  <span class="px-2 py-0.5 rounded bg-mivYellow-100 font-bold">${escapeHtml(e.condition)}</span>
+                  <span class="px-2 py-0.5 rounded bg-neutral-100 font-mono">Exp: ${escapeHtml(e.expiryDate)}</span>
+                </div>
+              </div>
+            `).join('')
+          }
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="text-xs font-extrabold uppercase text-neutral-800">Fire Hydrants (${(rep.hydrants || []).length})</h4>
+          ${(rep.hydrants || []).length === 0 ? '<p class="text-xs text-neutral-400">None recorded</p>' :
+            rep.hydrants.map((h, i) => {
+              const hType = h.hydrantType || 'Diesel';
+              const isElec = hType.toLowerCase().includes('electric');
+              return `
+              <div class="p-2.5 rounded-xl border border-mivYellow-300 bg-mivYellow-50/40 text-xs space-y-1">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-bold text-neutral-900">${i + 1}. ${escapeHtml(h.location)}</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${isElec ? 'bg-blue-100 text-blue-800' : 'bg-mivRed-100 text-mivRed-800'}">${escapeHtml(hType)}</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 text-[11px] text-neutral-700">
+                  <span>Diesel: <strong>${isElec ? 'N/A' : `${h.dieselPercent}%`}</strong></span>
+                  <span>Battery: <strong>${h.batteryVoltage}V</strong></span>
+                  <span>Run: <strong>${h.testRunMinutes}m</strong></span>
+                  <span>Hoses: <strong>${h.hoseCount}</strong></span>
+                  <span>Nozzles: <strong>${h.nozzleCount}</strong></span>
+                </div>
+              </div>
+            `;
+            }).join('')
+          }
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button onclick="shareSingleReportToWhatsApp('${rep.id}')" class="btn-android flex-1 py-3 rounded-xl bg-emerald-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5">
+            <i class="fa-brands fa-whatsapp text-base"></i> Share WhatsApp
+          </button>
+          <button onclick="closeLogDetailModal()" class="px-5 py-3 rounded-xl bg-neutral-200 text-neutral-800 font-bold text-xs">Close</button>
+        </div>
+      `;
+
+      document.getElementById('log-detail-modal').classList.remove('hidden');
+    }
+
+    function closeLogDetailModal() {
+      document.getElementById('log-detail-modal').classList.add('hidden');
+    }
+
+    // Amend Log (Requires Password)
+    function promptAmendLog(reportId) {
+      requestPasswordAuthorization(
+        'Amend Report Authorization',
+        'Enter password to amend this fire protection report',
+        () => openAmendLogEditor(reportId)
+      );
+    }
+
+    function openAmendLogEditor(reportId) {
+      const rep = appState.reports.find(r => r.id === reportId);
+      if (!rep) return;
+
+      document.getElementById('detail-modal-badge').textContent = 'Amend Mode';
+      document.getElementById('detail-modal-title').textContent = `Edit Report: ${rep.farmName}`;
+
+      const inspectorOptions = (appState.selectionMenus.inspectors || []).map(ins =>
+        `<option value="${escapeAttr(ins)}" ${ins === rep.inspector ? 'selected' : ''}>${escapeHtml(ins)}</option>`
+      ).join('');
+
+      const conditionOptions = (appState.selectionMenus.conditions || ['Good', 'Expired', 'Empty']);
+      const pressureOptions = (appState.selectionMenus.pressureGauges || ['Normal', 'Recharge/Empty']).map(normalizePressureLabel);
+      const hydrantTypeOptions = (appState.selectionMenus.hydrantTypes || ['Diesel', 'Electric']);
+      const body = document.getElementById('log-detail-body');
+      body.innerHTML = `
+        <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[11px] font-bold text-neutral-700 mb-1">Report Date</label>
+              <input type="date" id="amend-date" value="${escapeAttr(rep.date)}" class="w-full rounded-xl border border-neutral-300 px-3 py-2 text-xs font-bold" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-neutral-700 mb-1">Inspector</label>
+              <select id="amend-inspector" class="w-full rounded-xl border border-neutral-300 px-3 py-2 text-xs font-bold">
+                ${inspectorOptions}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-neutral-700 mb-1">Remarks / Notes</label>
+            <input type="text" id="amend-notes" value="${escapeAttr(rep.notes || '')}" class="w-full rounded-xl border border-neutral-300 px-3 py-2 text-xs" />
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-xs font-extrabold text-mivRed-700 uppercase">Extinguisher Entries</h4>
+            ${(rep.extinguishers || []).map((e, idx) => `
+              <div class="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2">
+                <div class="text-xs font-bold text-neutral-800">${idx + 1}. ${escapeHtml(e.location)}</div>
+                <div class="grid grid-cols-3 gap-1.5">
+                  <select id="amend-ext-press-${idx}" class="rounded-lg border border-neutral-300 px-2 py-1.5 text-[11px] font-semibold">
+                    ${pressureOptions.map(p => `<option value="${escapeAttr(p)}" ${p === e.pressureGauge ? 'selected' : ''}>${escapeHtml(p)}</option>`).join('')}
+                  </select>
+                  <select id="amend-ext-cond-${idx}" class="rounded-lg border border-neutral-300 px-2 py-1.5 text-[11px] font-bold">
+                    ${conditionOptions.map(c => `<option value="${escapeAttr(c)}" ${c === e.condition ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+                  </select>
+                  <input type="date" id="amend-ext-exp-${idx}" value="${escapeAttr(e.expiryDate)}" class="rounded-lg border border-neutral-300 px-2 py-1.5 text-[11px] font-mono" />
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          ${(rep.hydrants || []).length > 0 ? `
+            <div class="space-y-2">
+              <h4 class="text-xs font-extrabold text-neutral-800 uppercase">Hydrant Entries</h4>
+              ${rep.hydrants.map((h, idx) => {
+                const curType = h.hydrantType || 'Diesel';
+                return `
+                <div class="p-2.5 rounded-xl bg-mivYellow-50/50 border border-mivYellow-300 space-y-2">
+                  <div class="text-xs font-bold text-neutral-900">${idx + 1}. ${escapeHtml(h.location)}</div>
+                  <div class="grid grid-cols-4 gap-1.5 text-[11px]">
+                    <div>
+                      <span class="block text-[10px] text-neutral-500">Type</span>
+                      <select id="amend-hyd-type-${idx}" class="w-full rounded border border-neutral-300 px-1.5 py-1 font-bold">
+                        ${hydrantTypeOptions.map(t => `<option value="${escapeAttr(t)}" ${t === curType ? 'selected' : ''}>${escapeHtml(t)}</option>`).join('')}
+                      </select>
+                    </div>
+                    <div>
+                      <span class="block text-[10px] text-neutral-500">Diesel %</span>
+                      <input type="number" id="amend-hyd-diesel-${idx}" value="${h.dieselPercent ?? ''}" placeholder="N/A" class="w-full rounded border border-neutral-300 px-2 py-1 font-mono font-bold" />
+                    </div>
+                    <div>
+                      <span class="block text-[10px] text-neutral-500">Batt (V)</span>
+                      <input type="number" step="0.1" id="amend-hyd-batt-${idx}" value="${h.batteryVoltage}" class="w-full rounded border border-neutral-300 px-2 py-1 font-mono font-bold" />
+                    </div>
+                    <div>
+                      <span class="block text-[10px] text-neutral-500">Run (m)</span>
+                      <input type="number" id="amend-hyd-run-${idx}" value="${h.testRunMinutes}" class="w-full rounded border border-neutral-300 px-2 py-1 font-mono font-bold" />
+                    </div>
+                  </div>
+                </div>
+              `;
+              }).join('')}
+            </div>
+          ` : ''}
+
+          <div class="flex gap-2 pt-2">
+            <button onclick="saveAmendedLog('${rep.id}')" class="btn-android flex-1 py-3 rounded-xl bg-mivRed-700 text-white font-extrabold text-xs shadow-md">
+              <i class="fa-solid fa-floppy-disk mr-1 text-mivYellow-400"></i> Save &amp; Sync Changes
+            </button>
+            <button onclick="closeLogDetailModal()" class="px-4 py-3 rounded-xl bg-neutral-200 text-neutral-800 font-bold text-xs">Cancel</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('log-detail-modal').classList.remove('hidden');
+    }
+
+    async function saveAmendedLog(reportId) {
+      const rep = appState.reports.find(r => r.id === reportId);
+      if (!rep) return;
+
+      rep.date = document.getElementById('amend-date').value || rep.date;
+      rep.inspector = document.getElementById('amend-inspector').value || rep.inspector;
+      rep.notes = document.getElementById('amend-notes').value.trim();
+      rep.updatedAt = new Date().toISOString();
+
+      (rep.extinguishers || []).forEach((e, idx) => {
+        const pEl = document.getElementById(`amend-ext-press-${idx}`);
+        const cEl = document.getElementById(`amend-ext-cond-${idx}`);
+        const dEl = document.getElementById(`amend-ext-exp-${idx}`);
+        if (pEl) e.pressureGauge = pEl.value;
+        if (cEl) e.condition = cEl.value;
+        if (dEl) e.expiryDate = dEl.value;
+      });
+
+      (rep.hydrants || []).forEach((h, idx) => {
+        const tEl = document.getElementById(`amend-hyd-type-${idx}`);
+        const dEl = document.getElementById(`amend-hyd-diesel-${idx}`);
+        const bEl = document.getElementById(`amend-hyd-batt-${idx}`);
+        const rEl = document.getElementById(`amend-hyd-run-${idx}`);
+        if (tEl) h.hydrantType = tEl.value;
+        const isElec = (h.hydrantType || 'Diesel').toLowerCase().includes('electric');
+        if (dEl) h.dieselPercent = isElec ? null : (parseFloat(dEl.value) || 0);
+        if (bEl) h.batteryVoltage = parseFloat(bEl.value) || 0;
+        if (rEl) h.testRunMinutes = parseInt(rEl.value, 10) || 0;
+      });
+
+      closeLogDetailModal();
+      renderLogs();
+      await pushToDropbox(true);
+    }
+
+    // Delete Log (Requires Password)
+    function promptDeleteLog(reportId) {
+      requestPasswordAuthorization(
+        'Delete Report Authorization',
+        'Enter password to permanently delete this log',
+        async () => {
+          appState.reports = appState.reports.filter(r => r.id !== reportId);
+          renderLogs();
+          showToast('Report deleted', 'info');
+          await pushToDropbox(true);
+        }
+      );
+    }
+
+    // =========================================================================
+    // 9. TAB 3: EXECUTIVE REPORT (GROUP DETAILED REPORT, PRINT, CSV, WHATSAPP)
+    // =========================================================================
+    function getFilteredExecutiveReports() {
+      const farmFilter = document.getElementById('exec-farm-filter')?.value || 'ALL';
+      const dateFrom = document.getElementById('exec-date-from')?.value || '';
+      const dateTo = document.getElementById('exec-date-to')?.value || '';
+
+      return appState.reports.filter(r => {
+        if (farmFilter !== 'ALL' && r.farmId !== farmFilter) return false;
+        if (dateFrom && r.date < dateFrom) return false;
+        if (dateTo && r.date > dateTo) return false;
+        return true;
+      });
+    }
+
+    function renderExecutiveReport() {
+      const filtered = getFilteredExecutiveReports();
+      const kpiStrip = document.getElementById('exec-kpi-strip');
+      const groupsContainer = document.getElementById('exec-group-reports');
+
+      let totalExt = 0, totalGood = 0, totalEmpty = 0, totalExpired = 0;
+      let totalHyd = 0, dieselHydCount = 0, sumDiesel = 0, totalHoses = 0, totalNozzles = 0;
+
+      filtered.forEach(rep => {
+        const st = calculateExtinguisherStats(rep.extinguishers || []);
+        totalExt += st.total;
+        totalGood += st.good;
+        totalEmpty += st.empty;
+        totalExpired += st.expired;
+
+        (rep.hydrants || []).forEach(h => {
+          totalHyd++;
+          const isElec = (h.hydrantType || 'Diesel').toLowerCase().includes('electric');
+          if (!isElec && h.dieselPercent !== null && h.dieselPercent !== undefined) {
+            dieselHydCount++;
+            sumDiesel += Number(h.dieselPercent) || 0;
+          }
+          totalHoses += Number(h.hoseCount) || 0;
+          totalNozzles += Number(h.nozzleCount) || 0;
+        });
+      });
+
+      const goodPct = totalExt > 0 ? Math.round((totalGood / totalExt) * 100) : 100;
+
+      kpiStrip.innerHTML = `
+        <div class="bg-white rounded-2xl shadow-android p-3 border-b-4 border-emerald-500">
+          <span class="text-[10px] font-bold uppercase text-neutral-400">Extinguishers</span>
+          <div class="text-2xl font-black text-emerald-600 font-mono mt-0.5">${totalGood}/${totalExt}</div>
+          <span class="text-[10px] font-bold text-emerald-700">${goodPct}% Good Condition</span>
+        </div>
+        <div class="bg-white rounded-2xl shadow-android p-3 border-b-4 border-amber-500">
+          <span class="text-[10px] font-bold uppercase text-neutral-400">Action Needed</span>
+          <div class="text-2xl font-black text-mivRed-700 font-mono mt-0.5">${totalEmpty + totalExpired}</div>
+          <span class="text-[10px] text-neutral-500">${totalEmpty} Empty • ${totalExpired} Expired</span>
+        </div>
+      `;
+
+      // Group Reports by Farm
+      const farmFilter = document.getElementById('exec-farm-filter')?.value || 'ALL';
+      const farmsToDisplay = farmFilter === 'ALL'
+        ? appState.farms
+        : appState.farms.filter(f => f.id === farmFilter);
+
+      if (farmsToDisplay.length === 0) {
+        groupsContainer.innerHTML = `<div class="bg-white rounded-2xl p-6 text-center text-xs text-neutral-400">No Farm Groups configured.</div>`;
+        return;
+      }
+
+      groupsContainer.innerHTML = farmsToDisplay.map(farm => {
+        const farmReports = filtered.filter(r => r.farmId === farm.id);
+        let fGood = 0, fEmpty = 0, fExpired = 0, fTotal = 0;
+        let fHydrants = [];
+        let fExtinguishers = [];
+        const reqExt = Number(farm.requiredExtinguishers) || 0;
+
+        farmReports.forEach(r => {
+          const st = calculateExtinguisherStats(r.extinguishers || []);
+          fGood += st.good;
+          fEmpty += st.empty;
+          fExpired += st.expired;
+          fTotal += st.total;
+          (r.extinguishers || []).forEach(e => fExtinguishers.push({ ...e, date: r.date, inspector: r.inspector }));
+          (r.hydrants || []).forEach(h => fHydrants.push({ ...h, date: r.date, inspector: r.inspector }));
+        });
+
+        return `
+          <div class="bg-white rounded-2xl shadow-android overflow-hidden print-break-inside border border-neutral-200/80">
+            <!-- Group Header -->
+            <div class="bg-gradient-to-r from-mivRed-800 to-mivRed-700 text-white px-4 py-3 flex items-center justify-between gap-2">
+              <div>
+                <h3 class="text-sm font-extrabold">${escapeHtml(farm.name)}</h3>
+                <p class="text-[11px] text-mivYellow-200">${farm.houses.length} Registered Houses/Locations • ${farmReports.length} Report(s)</p>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <!-- Required Extinguisher Badge (Screen & WhatsApp only; hidden on Print & CSV) -->
+                <span class="no-print px-2.5 py-1 rounded-xl bg-black/30 border border-mivYellow-400/50 text-mivYellow-300 font-extrabold text-xs">
+                  Req: ${reqExt} Ext
+                </span>
+                <span class="no-print px-2.5 py-1 rounded-xl bg-mivYellow-500 text-neutral-950 font-extrabold text-xs">
+                  ${fTotal} Checked
+                </span>
+              </div>
+            </div>
+
+            <div class="p-4 space-y-3">
+              <!-- Group Extinguisher Totals Strip -->
+              <div class="grid grid-cols-4 gap-2 text-center bg-neutral-50 rounded-xl p-2.5 border border-neutral-200/70">
+                <div>
+                  <span class="block text-[10px] font-bold text-neutral-500 uppercase">Good</span>
+                  <span class="text-base font-black text-emerald-600 font-mono">${fGood}</span>
+                </div>
+                <div>
+                  <span class="block text-[10px] font-bold text-neutral-500 uppercase">Empty</span>
+                  <span class="text-base font-black text-red-600 font-mono">${fEmpty}</span>
+                </div>
+                <div>
+                  <span class="block text-[10px] font-bold text-neutral-500 uppercase">Expired</span>
+                  <span class="text-base font-black text-amber-600 font-mono">${fExpired}</span>
+                </div>
+                <div>
+                  <span class="block text-[10px] font-bold text-neutral-500 uppercase">Overall</span>
+                  <span class="text-base font-black text-neutral-900 font-mono">${fTotal}</span>
+                </div>
+              </div>
+
+              <!-- Detailed Extinguisher Table -->
+              ${fExtinguishers.length > 0 ? `
+                <div class="overflow-x-auto">
+                  <div class="text-[10px] font-extrabold uppercase text-neutral-500 mb-1">Fire Extinguisher Log</div>
+                  <table class="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr class="bg-neutral-100 text-neutral-600 uppercase text-[10px]">
+                        <th class="p-2 rounded-tl-lg">Date</th>
+                        <th class="p-2">Location</th>
+                        <th class="p-2">Gauge</th>
+                        <th class="p-2">Seal</th>
+                        <th class="p-2">Cond.</th>
+                        <th class="p-2 rounded-tr-lg">Expiry</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-100">
+                      ${fExtinguishers.map(e => `
+                        <tr>
+                          <td class="p-2 font-mono whitespace-nowrap">${escapeHtml(e.date)}</td>
+                          <td class="p-2 font-bold text-neutral-800">${escapeHtml(e.location)}</td>
+                          <td class="p-2">
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${e.pressureGauge.toLowerCase().includes('normal') ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                              ${escapeHtml(e.pressureGauge)}
+                            </span>
+                          </td>
+                          <td class="p-2">${escapeHtml(e.safetySeal)}</td>
+                          <td class="p-2 font-extrabold ${e.condition === 'Good' ? 'text-emerald-700' : 'text-mivRed-700'}">${escapeHtml(e.condition)}</td>
+                          <td class="p-2 font-mono whitespace-nowrap">${escapeHtml(e.expiryDate)}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              ` : `<p class="text-xs text-neutral-400 italic">No extinguisher records for this farm in selected period.</p>`}
+
+              <!-- Detailed Hydrant Summary Table -->
+              ${fHydrants.length > 0 ? `
+                <div class="overflow-x-auto pt-1">
+                  <div class="text-[10px] font-extrabold uppercase text-neutral-500 mb-1">Fire Hydrant &amp; Pump Room Log</div>
+                  <table class="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr class="bg-mivYellow-100 text-neutral-800 uppercase text-[10px]">
+                        <th class="p-2 rounded-tl-lg">Date</th>
+                        <th class="p-2">Location</th>
+                        <th class="p-2">Type</th>
+                        <th class="p-2">Diesel %</th>
+                        <th class="p-2">Batt (V)</th>
+                        <th class="p-2">Run (m)</th>
+                        <th class="p-2 rounded-tr-lg">Hose/Nozzle</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-100">
+                      ${fHydrants.map(h => {
+                        const hType = h.hydrantType || 'Diesel';
+                        const isElec = hType.toLowerCase().includes('electric');
+                        return `
+                        <tr>
+                          <td class="p-2 font-mono whitespace-nowrap">${escapeHtml(h.date)}</td>
+                          <td class="p-2 font-bold text-neutral-800">${escapeHtml(h.location)}</td>
+                          <td class="p-2">
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold ${isElec ? 'bg-blue-100 text-blue-800' : 'bg-mivRed-100 text-mivRed-800'}">
+                              ${escapeHtml(hType)}
+                            </span>
+                          </td>
+                          <td class="p-2 font-mono font-extrabold ${isElec ? 'text-neutral-400' : (h.dieselPercent < 50 ? 'text-mivRed-700' : 'text-emerald-700')}">
+                            ${isElec ? 'N/A' : `${h.dieselPercent}%`}
+                          </td>
+                          <td class="p-2 font-mono">${h.batteryVoltage}V</td>
+                          <td class="p-2 font-mono">${h.testRunMinutes}m</td>
+                          <td class="p-2 font-mono font-bold">${h.hoseCount} / ${h.nozzleCount}</td>
+                        </tr>
+                      `;
+                      }).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function exportExecutiveCSV() {
+      const filtered = getFilteredExecutiveReports();
+      const rows = [
+        ['Date', 'Farm Group', 'Inspector', 'Category', 'Location', 'Pressure Gauge / Diesel %', 'Seal / Battery (V)', 'Condition / Run (Mins)', 'Expiry / Hoses & Nozzles']
+      ];
+
+      filtered.forEach(r => {
+        (r.extinguishers || []).forEach(e => {
+          rows.push([
+            r.date,
+            r.farmName,
+            r.inspector,
+            'Fire Extinguisher',
+            e.location,
+            e.pressureGauge,
+            e.safetySeal,
+            e.condition,
+            e.expiryDate
+          ]);
+        });
+        (r.hydrants || []).forEach(h => {
+          const hType = h.hydrantType || 'Diesel';
+          const isElec = hType.toLowerCase().includes('electric');
+          rows.push([
+            r.date,
+            r.farmName,
+            r.inspector,
+            `Fire Hydrant (${hType})`,
+            h.location,
+            isElec ? 'N/A (Electric)' : `${h.dieselPercent}%`,
+            `${h.batteryVoltage}V`,
+            `${h.testRunMinutes} mins`,
+            `${h.hoseCount} Hoses / ${h.nozzleCount} Nozzles`
+          ]);
+        });
+      });
+
+      const csvContent = rows.map(row =>
+        row.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',')
+      ).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `MIV_Fire_Protection_Executive_Report_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast('CSV Report Exported!', 'success');
+    }
+
+    // Print Executive Report reliably (works in sandboxed iframes & mobile browsers)
+    function printExecutiveReport() {
+      const kpiHtml = document.getElementById('exec-kpi-strip')?.innerHTML || '';
+      const groupsHtml = document.getElementById('exec-group-reports')?.innerHTML || '';
+      const farmFilterEl = document.getElementById('exec-farm-filter');
+      const selectedFarmLabel = farmFilterEl ? farmFilterEl.options[farmFilterEl.selectedIndex]?.text : 'All Farms';
+      const dateFrom = document.getElementById('exec-date-from')?.value || 'Start';
+      const dateTo = document.getElementById('exec-date-to')?.value || 'Latest';
+
+      const printWin = window.open('', '_blank', 'width=960,height=800');
+      if (printWin) {
+        printWin.document.open();
+        printWin.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>MIV Executive Farm Report - Print</title>
+            <script src="https://cdn.tailwindcss.com"><\/script>
+            <style>
+              body { font-family: Inter, Arial, sans-serif; padding: 20px; background: #fff; color: #111; }
+              .no-print { display: none !important; }
+              .print-break-inside { break-inside: avoid; margin-bottom: 16px; }
+              @media print {
+                @page { margin: 12mm; }
+                body { padding: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            <div style="border-bottom: 3px solid #B71C1C; padding-bottom: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h1 style="font-size: 20px; font-weight: 900; color: #B71C1C; margin: 0;">MIV FIRE PROTECTION EXECUTIVE REPORT</h1>
+                <p style="font-size: 12px; color: #555; margin: 2px 0 0 0;">Scope: ${escapeHtml(selectedFarmLabel)} | Period: ${escapeHtml(dateFrom)} to ${escapeHtml(dateTo)}</p>
+              </div>
+              <div style="text-align: right; font-size: 11px; color: #666;">
+                Printed: ${new Date().toLocaleString()}
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-4">${kpiHtml}</div>
+            <div class="space-y-4">${groupsHtml}</div>
+            <script>
+              window.onload = function() {
+                setTimeout(function() { window.print(); }, 450);
+              };
+            <\/script>
+          </body>
+          </html>
+        `);
+        printWin.document.close();
+      } else {
+        // Fallback if popup blocker prevents opening print window
+        switchTab('executive');
+        setTimeout(() => window.print(), 150);
+      }
+    }
+
+    function shareExecutiveWhatsApp() {
+      const filtered = getFilteredExecutiveReports();
+      let totalExt = 0, good = 0, empty = 0, expired = 0, hydCount = 0, totalReqExt = 0;
+
+      const farmFilter = document.getElementById('exec-farm-filter')?.value || 'ALL';
+      const farmsToInclude = farmFilter === 'ALL'
+        ? appState.farms
+        : appState.farms.filter(f => f.id === farmFilter);
+
+      const farmSummaries = farmsToInclude.map(farm => {
+        const fReps = filtered.filter(r => r.farmId === farm.id);
+        const reqExt = Number(farm.requiredExtinguishers) || 0;
+        let fg = 0, fe = 0, fx = 0, ft = 0, fh = 0;
+        fReps.forEach(r => {
+          const st = calculateExtinguisherStats(r.extinguishers || []);
+          fg += st.good; fe += st.empty; fx += st.expired; ft += st.total;
+          fh += (r.hydrants || []).length;
+        });
+        totalExt += ft; good += fg; empty += fe; expired += fx; hydCount += fh; totalReqExt += reqExt;
+        return `• *${farm.name}*: Req Ext: ${reqExt} | Checked: ${fg}/${ft} Good (Empty: ${fe}, Exp: ${fx}) | Hydrants: ${fh}`;
+      });
+
+      const text = [
+        `*📊 MIV EXECUTIVE FIRE PROTECTION SUMMARY*`,
+        `*Generated:* ${new Date().toLocaleDateString()}`,
+        `*Total Reports:* ${filtered.length}`,
+        `*Required Extinguishers:* ${totalReqExt}`,
+        `*Overall Extinguishers:* ${good} Good | ${empty} Empty | ${expired} Expired (Total: ${totalExt})`,
+        `*Total Hydrant Checks:* ${hydCount}`,
+        ``,
+        `*GROUP BREAKDOWN:*`,
+        ...farmSummaries
+      ].join('\n');
+
+      openWhatsAppWithText(text);
+    }
+
+    // =========================================================================
+    // 10. TAB 4: ADMIN FEATURES (AUTOMATED REPORT, FARMS, HOUSES, MENUS)
+    // =========================================================================
+    function renderAdminPanel() {
+      const lockScreen = document.getElementById('admin-lock-screen');
+      const unlockedContent = document.getElementById('admin-unlocked-content');
+
+      if (!isAdminUnlocked) {
+        lockScreen.classList.remove('hidden');
+        unlockedContent.classList.add('hidden');
+        return;
+      }
+
+      lockScreen.classList.add('hidden');
+      unlockedContent.classList.remove('hidden');
+
+      renderAdminFarms();
+      renderAdminHouses();
+      renderAdminMenuOptions();
+    }
+
+    // A1. Automated Farm Report Generator
+    function generateAutomatedFarmReport() {
+      const targetFarmId = document.getElementById('admin-auto-report-farm').value;
+      const targetFarms = targetFarmId === 'ALL'
+        ? appState.farms
+        : appState.farms.filter(f => f.id === targetFarmId);
+
+      const relevantReports = targetFarmId === 'ALL'
+        ? appState.reports
+        : appState.reports.filter(r => r.farmId === targetFarmId);
+
+      let totalExt = 0, goodExt = 0, alerts = [];
+      relevantReports.forEach(r => {
+        (r.extinguishers || []).forEach(e => {
+          totalExt++;
+          if (e.condition === 'Good') goodExt++;
+          else alerts.push(`[${r.farmName}] Extinguisher at ${e.location} is ${e.condition} (${e.pressureGauge})`);
+        });
+        (r.hydrants || []).forEach(h => {
+          const isElec = (h.hydrantType || 'Diesel').toLowerCase().includes('electric');
+          if (!isElec && h.dieselPercent !== null && Number(h.dieselPercent) < 50) {
+            alerts.push(`[${r.farmName}] Diesel Hydrant Pump at ${h.location} has LOW DIESEL (${h.dieselPercent}%)`);
+          }
+        });
+      });
+
+      const complianceScore = totalExt > 0 ? Math.round((goodExt / totalExt) * 100) : 100;
+      const outputBox = document.getElementById('admin-auto-report-output');
+      outputBox.classList.remove('hidden');
+      outputBox.innerHTML = `
+        <div class="flex items-center justify-between border-b border-neutral-200 pb-2">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase text-mivRed-700">Automated Compliance Brief</span>
+            <h4 class="text-sm font-extrabold text-neutral-900">${targetFarmId === 'ALL' ? 'All MIV Farms Consolidated' : escapeHtml(targetFarms[0]?.name || '')}</h4>
+          </div>
+          <span class="px-2.5 py-1 rounded-xl font-mono font-black text-xs ${complianceScore >= 85 ? 'bg-emerald-600 text-white' : 'bg-mivRed-600 text-white'}">
+            ${complianceScore}% Ready
+          </span>
+        </div>
+        <div class="text-xs text-neutral-700 space-y-1">
+          <p>• <strong>Inspections Analyzed:</strong> ${relevantReports.length} reports across ${targetFarms.length} farm(s).</p>
+          <p>• <strong>Extinguisher Readiness:</strong> ${goodExt} of ${totalExt} units in Good condition.</p>
+          <p>• <strong>Priority Action Items (${alerts.length}):</strong></p>
+          ${alerts.length === 0
+            ? `<div class="p-2 rounded-lg bg-emerald-50 text-emerald-800 font-bold text-[11px]">✓ Zero critical fire safety anomalies detected.</div>`
+            : `<ul class="list-disc pl-5 space-y-0.5 text-[11px] text-mivRed-800 font-semibold">${alerts.map(a => `<li>${escapeHtml(a)}</li>`).join('')}</ul>`
+          }
+        </div>
+      `;
+      showToast('Automated Farm Audit Generated!', 'success');
+    }
+
+    // A2. Edit / Add Farm & Required Extinguishers
+    function renderAdminFarms() {
+      const container = document.getElementById('admin-farms-list');
+      container.innerHTML = appState.farms.map(f => {
+        const reqExt = Number(f.requiredExtinguishers) || 0;
+        return `
+        <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-neutral-50 border border-neutral-200">
+          <div class="min-w-0">
+            <div class="text-xs font-extrabold text-neutral-900 truncate">${escapeHtml(f.name)}</div>
+            <div class="text-[10px] text-neutral-500">
+              ${f.houses.length} Houses/Locations • <strong class="text-mivRed-700">Required Ext: ${reqExt}</strong>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="adminRenameFarm('${f.id}')" class="px-2.5 py-1.5 rounded-lg bg-mivYellow-100 hover:bg-mivYellow-200 text-neutral-900 font-bold text-[11px]">
+              <i class="fa-solid fa-pen"></i> Edit
+            </button>
+            ${appState.farms.length > 1 ? `
+              <button onclick="adminDeleteFarm('${f.id}')" class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-mivRed-700 font-bold text-[11px]">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+      }).join('');
+    }
+
+    async function adminAddFarm() {
+      const inp = document.getElementById('admin-new-farm-name');
+      const reqInp = document.getElementById('admin-new-farm-req-ext');
+      const name = inp.value.trim();
+      const reqExt = Math.max(0, parseInt(reqInp?.value, 10) || 0);
+      if (!name) {
+        showToast('Enter a Farm name first!', 'error');
+        return;
+      }
+      const newFarm = {
+        id: 'farm_' + Date.now(),
+        name,
+        requiredExtinguishers: reqExt,
+        houses: [
+          { id: 'h_' + Date.now() + '_1', houseNumber: 'House 1', location: 'Main Entrance' },
+          { id: 'h_' + Date.now() + '_2', houseNumber: 'Store', location: 'Equipment & Feed Store' }
+        ]
+      };
+      appState.farms.push(newFarm);
+      inp.value = '';
+      if (reqInp) reqInp.value = '';
+      refreshAllUI();
+      await pushToDropbox(true);
+    }
+
+    function adminRenameFarm(farmId) {
+      const farm = appState.farms.find(f => f.id === farmId);
+      if (!farm) return;
+      const container = document.getElementById('admin-farms-list');
+      const row = Array.from(container.children).find(el => el.innerHTML.includes(farmId));
+      if (!row) return;
+      const reqExt = Number(farm.requiredExtinguishers) || 0;
+      row.innerHTML = `
+        <div class="flex-1 flex flex-col sm:flex-row gap-1.5">
+          <input type="text" id="inline-edit-farm-${farmId}" value="${escapeAttr(farm.name)}" class="flex-1 rounded-lg border-2 border-mivRed-600 px-2.5 py-1.5 text-xs font-bold" />
+          <input type="number" min="0" id="inline-edit-farm-req-${farmId}" value="${reqExt}" placeholder="Req. Ext" class="w-full sm:w-28 rounded-lg border-2 border-mivYellow-500 px-2.5 py-1.5 text-xs font-mono font-bold" />
+        </div>
+        <button onclick="saveRenamedFarm('${farmId}')" class="px-3 py-1.5 rounded-lg bg-mivRed-700 text-white font-bold text-xs">Save</button>
+      `;
+    }
+
+    async function saveRenamedFarm(farmId) {
+      const farm = appState.farms.find(f => f.id === farmId);
+      const val = document.getElementById(`inline-edit-farm-${farmId}`)?.value.trim();
+      const reqVal = Math.max(0, parseInt(document.getElementById(`inline-edit-farm-req-${farmId}`)?.value, 10) || 0);
+      if (farm && val) {
+        farm.name = val;
+        farm.requiredExtinguishers = reqVal;
+        refreshAllUI();
+        await pushToDropbox(true);
+      }
+    }
+
+    async function adminDeleteFarm(farmId) {
+      if (appState.farms.length <= 1) {
+        showToast('At least one Farm must remain.', 'error');
+        return;
+      }
+      appState.farms = appState.farms.filter(f => f.id !== farmId);
+      refreshAllUI();
+      await pushToDropbox(true);
+    }
+
+    // A3. Edit / Add House Numbers & Location per Farm
+    function renderAdminHouses() {
+      const farmId = document.getElementById('admin-house-farm-select')?.value || appState.farms[0]?.id;
+      const farm = appState.farms.find(f => f.id === farmId);
+      const container = document.getElementById('admin-houses-list');
+      if (!farm || !container) return;
+
+      if (farm.houses.length === 0) {
+        container.innerHTML = `<p class="text-xs text-neutral-400 italic py-2">No houses added for ${escapeHtml(farm.name)} yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = farm.houses.map(h => `
+        <div id="admin-house-row-${h.id}" class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-neutral-50 border border-neutral-200">
+          <div class="text-xs">
+            <span class="font-extrabold text-mivRed-700">${escapeHtml(h.houseNumber)}</span>
+            <span class="text-neutral-400 mx-1">•</span>
+            <span class="font-semibold text-neutral-800">${escapeHtml(h.location)}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="editAdminHouse('${farm.id}', '${h.id}')" class="px-2 py-1 rounded-lg bg-mivYellow-100 text-neutral-900 font-bold text-[11px]">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button onclick="deleteAdminHouse('${farm.id}', '${h.id}')" class="px-2 py-1 rounded-lg bg-red-50 text-mivRed-700 font-bold text-[11px]">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function adminAddHouse() {
+      const farmId = document.getElementById('admin-house-farm-select').value;
+      const farm = appState.farms.find(f => f.id === farmId);
+      const numInp = document.getElementById('admin-new-house-num');
+      const locInp = document.getElementById('admin-new-house-loc');
+
+      const houseNumber = numInp.value.trim();
+      const location = locInp.value.trim();
+
+      if (!farm || !houseNumber || !location) {
+        showToast('Enter both House Number and Location!', 'error');
+        return;
+      }
+
+      farm.houses.push({
+        id: 'h_' + Date.now(),
+        houseNumber,
+        location
+      });
+
+      numInp.value = '';
+      locInp.value = '';
+      refreshAllUI();
+      await pushToDropbox(true);
+    }
+
+    function editAdminHouse(farmId, houseId) {
+      const farm = appState.farms.find(f => f.id === farmId);
+      const h = farm?.houses.find(item => item.id === houseId);
+      const row = document.getElementById(`admin-house-row-${houseId}`);
+      if (!h || !row) return;
+
+      row.innerHTML = `
+        <div class="flex-1 grid grid-cols-2 gap-1.5">
+          <input type="text" id="edit-h-num-${houseId}" value="${escapeAttr(h.houseNumber)}" class="rounded-lg border border-mivRed-500 px-2 py-1 text-xs font-bold" />
+          <input type="text" id="edit-h-loc-${houseId}" value="${escapeAttr(h.location)}" class="rounded-lg border border-mivRed-500 px-2 py-1 text-xs font-semibold" />
+        </div>
+        <button onclick="saveAdminHouse('${farmId}', '${houseId}')" class="px-3 py-1.5 rounded-lg bg-mivRed-700 text-white font-bold text-xs">Save</button>
+      `;
+    }
+
+    async function saveAdminHouse(farmId, houseId) {
+      const farm = appState.farms.find(f => f.id === farmId);
+      const h = farm?.houses.find(item => item.id === houseId);
+      const numVal = document.getElementById(`edit-h-num-${houseId}`)?.value.trim();
+      const locVal = document.getElementById(`edit-h-loc-${houseId}`)?.value.trim();
+      if (h && numVal && locVal) {
+        h.houseNumber = numVal;
+        h.location = locVal;
+        refreshAllUI();
+        await pushToDropbox(true);
+      }
+    }
+
+    async function deleteAdminHouse(farmId, houseId) {
+      const farm = appState.farms.find(f => f.id === farmId);
+      if (!farm) return;
+      farm.houses = farm.houses.filter(h => h.id !== houseId);
+      refreshAllUI();
+      await pushToDropbox(true);
+    }
+
+    // A4. Edit / Add Selection Menu Options
+    function renderAdminMenuOptions() {
+      const cat = document.getElementById('admin-menu-category')?.value || 'inspectors';
+      const list = appState.selectionMenus[cat] || [];
+      const container = document.getElementById('admin-menu-options-list');
+      if (!container) return;
+
+      container.innerHTML = list.map((opt, idx) => `
+        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-100 border border-neutral-200 text-xs font-bold text-neutral-800">
+          <span>${escapeHtml(opt)}</span>
+          <button onclick="editAdminMenuOption('${cat}', ${idx})" class="text-neutral-500 hover:text-neutral-900 ml-1" title="Edit">
+            <i class="fa-solid fa-pen text-[10px]"></i>
+          </button>
+          ${list.length > 1 ? `
+            <button onclick="deleteAdminMenuOption('${cat}', ${idx})" class="text-mivRed-600 hover:text-mivRed-800 ml-0.5" title="Delete">
+              <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    async function adminAddMenuOption() {
+      const cat = document.getElementById('admin-menu-category').value;
+      const inp = document.getElementById('admin-new-menu-option');
+      const val = inp.value.trim();
+      if (!val) {
+        showToast('Enter option text first!', 'error');
+        return;
+      }
+      if (!appState.selectionMenus[cat]) appState.selectionMenus[cat] = [];
+      appState.selectionMenus[cat].push(val);
+      inp.value = '';
+      refreshAllUI();
+      await pushToDropbox(true);
+    }
+
+    function editAdminMenuOption(cat, idx) {
+      const currentVal = appState.selectionMenus[cat]?.[idx];
+      if (currentVal === undefined) return;
+      const container = document.getElementById('admin-menu-options-list');
+      container.innerHTML = `
+        <div class="w-full flex gap-2">
+          <input type="text" id="inline-edit-menu-opt" value="${escapeAttr(currentVal)}" class="flex-1 rounded-xl border-2 border-mivRed-600 px-3 py-1.5 text-xs font-bold" />
+          <button onclick="saveAdminMenuOption('${cat}', ${idx})" class="px-4 py-1.5 rounded-xl bg-mivRed-700 text-white font-bold text-xs">Save</button>
+        </div>
+      `;
+    }
+
+    async function saveAdminMenuOption(cat, idx) {
+      const val = document.getElementById('inline-edit-menu-opt')?.value.trim();
+      if (val && appState.selectionMenus[cat]) {
+        appState.selectionMenus[cat][idx] = val;
+        refreshAllUI();
+        await pushToDropbox(true);
+      }
+    }
+
+    async function deleteAdminMenuOption(cat, idx) {
+      if (appState.selectionMenus[cat] && appState.selectionMenus[cat].length > 1) {
+        appState.selectionMenus[cat].splice(idx, 1);
+        refreshAllUI();
+        await pushToDropbox(true);
+      }
+    }
+
+    // A5. Update Admin & Log Password
+    async function adminChangePassword() {
+      const newPass = document.getElementById('admin-update-password').value.trim();
+      if (newPass.length < 4) {
+        showToast('Password must be at least 4 characters!', 'error');
+        return;
+      }
+      appState.adminPassword = newPass;
+      document.getElementById('admin-update-password').value = '';
+      await pushToDropbox(true);
+      showToast('Admin & Log Password Updated!', 'success');
+    }
+
+    // =========================================================================
+    // 11. UTILITIES, TOASTS & CLOCK
+    // =========================================================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const bgClass = type === 'success'
+        ? 'bg-emerald-900 text-white border-emerald-500'
+        : type === 'error'
+          ? 'bg-mivRed-900 text-white border-mivRed-500'
+          : 'bg-neutral-900 text-mivYellow-300 border-mivYellow-500/40';
+
+      const iconClass = type === 'success'
+        ? 'fa-circle-check text-emerald-400'
+        : type === 'error'
+          ? 'fa-triangle-exclamation text-red-400'
+          : 'fa-circle-info text-mivYellow-400';
+
+      const toast = document.createElement('div');
+      toast.className = `px-4 py-2.5 rounded-2xl shadow-xl border text-xs font-bold flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 ${bgClass}`;
+      toast.innerHTML = `<i class="fa-solid ${iconClass}"></i><span>${escapeHtml(message)}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2800);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+      return String(str ?? '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function updateStatusClock() {
+      const el = document.getElementById('status-clock');
+      if (el) {
+        el.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+
+    function refreshAllUI() {
+      populateFarmSelectors();
+      populateSelectionMenusUI();
+      renderDraftChecklists();
+      if (currentTab === 'logs') renderLogs();
+      if (currentTab === 'executive') renderExecutiveReport();
+      if (currentTab === 'admin') renderAdminPanel();
+    }
+
+    // =========================================================================
+    // 12. BOOT INITIALIZATION
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Auto-set today's date (leave expiry date & pills unselected with shadow examples)
+      const todayStr = new Date().toISOString().split('T')[0];
+      document.getElementById('input-report-date').value = todayStr;
+      document.getElementById('ext-expiry-date').value = '';
+
+      // 2. Parse 1-Tap New Device Sync Link if present in URL
+      parseMagicSyncLinkFromURL();
+
+      // 3. Render Initial UI
+      refreshAllUI();
+      switchTab('daily');
+      updateStatusClock();
+      setInterval(updateStatusClock, 15000);
+
+      // 4. Automatic Cloud Hydration on Boot & Start Multi-Device Polling
+      hydrateFromDropbox(false);
+      startBackgroundPolling();
+    });
+  </script>
+</body>
+</html>
