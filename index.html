@@ -12,6 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
   <!-- Font Awesome 6 for crisp Android Material-like icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- html2pdf.js for 1-Tap Mobile & WebView PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -518,11 +520,14 @@
         <div id="mobile-print-toolbar" class="hidden no-print sticky top-2 z-40 bg-neutral-900 text-white rounded-2xl p-3 shadow-xl flex items-center justify-between gap-2 border border-mivYellow-400/40">
           <div class="text-xs">
             <span class="font-extrabold text-mivYellow-400 block">Print / Save as PDF Ready</span>
-            <span class="text-[11px] text-neutral-300">Tap Print Dialog or Save PDF in your browser menu</span>
+            <span class="text-[11px] text-neutral-300">Tap Save PDF to download directly on mobile</span>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <button type="button" onclick="window.print()" class="btn-android px-3 py-2 rounded-xl bg-mivYellow-500 text-neutral-950 font-extrabold text-xs">
-              <i class="fa-solid fa-print mr-1"></i> Print / PDF
+            <button type="button" onclick="downloadExecutivePDF()" class="btn-android px-3 py-2 rounded-xl bg-mivRed-600 text-white font-extrabold text-xs">
+              <i class="fa-solid fa-file-pdf mr-1"></i> Save PDF
+            </button>
+            <button type="button" onclick="triggerNativePrintDialog()" class="btn-android px-3 py-2 rounded-xl bg-mivYellow-500 text-neutral-950 font-extrabold text-xs">
+              <i class="fa-solid fa-print mr-1"></i> Print
             </button>
             <button type="button" onclick="exitMobilePrintMode()" class="btn-android px-3 py-2 rounded-xl bg-white/15 text-white font-bold text-xs">
               Done
@@ -530,188 +535,67 @@
           </div>
         </div>
 
-        <!-- Dedicated Print Header (Visible in Print Mode & PDF Output) -->
-        <div id="mobile-print-header" class="hidden border-b-4 border-mivRed-800 pb-3 mb-3 flex items-center justify-between gap-2">
-          <div>
-            <h1 class="text-lg font-black text-mivRed-800 uppercase tracking-tight">MIV Fire Protection Executive Report</h1>
-            <p id="mobile-print-meta" class="text-xs text-neutral-600 font-semibold mt-0.5">Scope: All Farms | Period: Start to Latest</p>
-          </div>
-          <div class="text-right text-[11px] text-neutral-500 font-mono">
-            <div id="mobile-print-date"></div>
-          </div>
-        </div>
-
-        <div id="exec-controls-card" class="no-print bg-white rounded-2xl shadow-android jotform-card p-4 sm:p-5 space-y-4">
-          <div class="flex flex-wrap items-start justify-between gap-2">
+        <!-- Printable Report Wrapper (Captured cleanly for Mobile PDF & Print) -->
+        <div id="exec-printable-area" class="space-y-4">
+          <!-- Dedicated Print Header (Visible in Print Mode & PDF Output) -->
+          <div id="mobile-print-header" class="hidden border-b-4 border-mivRed-800 pb-3 mb-3 flex items-center justify-between gap-2">
             <div>
-              <span class="inline-block px-2 py-0.5 rounded bg-mivYellow-400 text-neutral-950 font-extrabold text-[10px] uppercase">Automated Farm Analytics</span>
-              <h2 class="text-lg font-extrabold text-neutral-900 mt-0.5">Executive Farm Report</h2>
-              <p class="text-xs text-neutral-500">Group-by-group fire safety compliance summary &amp; exports</p>
+              <h1 class="text-lg font-black text-mivRed-800 uppercase tracking-tight">MIV Fire Protection Executive Report</h1>
+              <p id="mobile-print-meta" class="text-xs text-neutral-600 font-semibold mt-0.5">Scope: All Farms | Period: Start to Latest</p>
             </div>
-            <!-- Action Buttons: Print, CSV, WhatsApp -->
-            <div class="no-print flex flex-wrap items-center gap-2">
-              <button type="button" onclick="printExecutiveReport()" class="btn-android px-3 py-2 rounded-xl bg-neutral-900 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-print text-mivYellow-400"></i> Print
-              </button>
-              <button type="button" onclick="exportExecutiveCSV()" class="btn-android px-3 py-2 rounded-xl bg-mivYellow-500 text-neutral-950 font-extrabold text-xs flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-file-csv text-mivRed-800"></i> CSV
-              </button>
-              <button type="button" onclick="shareExecutiveWhatsApp()" class="btn-android px-3 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
-                <i class="fa-brands fa-whatsapp text-sm"></i> Share
-              </button>
+            <div class="text-right text-[11px] text-neutral-500 font-mono">
+              <div id="mobile-print-date"></div>
             </div>
           </div>
 
-          <!-- Filter Controls -->
-          <div class="no-print grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-            <div>
-              <label class="block text-[10px] font-bold uppercase text-neutral-500 mb-1">Filter Farm Group</label>
-              <select id="exec-farm-filter" onchange="renderExecutiveReport()" class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-xs font-bold text-neutral-800 bg-neutral-50">
-                <option value="ALL">All Farms (Consolidated)</option>
-              </select>
+          <div id="exec-controls-card" class="no-print bg-white rounded-2xl shadow-android jotform-card p-4 sm:p-5 space-y-4">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <span class="inline-block px-2 py-0.5 rounded bg-mivYellow-400 text-neutral-950 font-extrabold text-[10px] uppercase">Automated Farm Analytics</span>
+                <h2 class="text-lg font-extrabold text-neutral-900 mt-0.5">Executive Farm Report</h2>
+                <p class="text-xs text-neutral-500">Group-by-group fire safety compliance summary &amp; exports</p>
+              </div>
+              <!-- Action Buttons: Print, CSV, WhatsApp -->
+              <div class="no-print flex flex-wrap items-center gap-2">
+                <button type="button" onclick="printExecutiveReport()" class="btn-android px-3 py-2 rounded-xl bg-neutral-900 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
+                  <i class="fa-solid fa-print text-mivYellow-400"></i> Print
+                </button>
+                <button type="button" onclick="exportExecutiveCSV()" class="btn-android px-3 py-2 rounded-xl bg-mivYellow-500 text-neutral-950 font-extrabold text-xs flex items-center gap-1.5 shadow-sm">
+                  <i class="fa-solid fa-file-csv text-mivRed-800"></i> CSV
+                </button>
+                <button type="button" onclick="shareExecutiveWhatsApp()" class="btn-android px-3 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
+                  <i class="fa-brands fa-whatsapp text-sm"></i> Share
+                </button>
+              </div>
             </div>
-            <div>
-              <label class="block text-[10px] font-bold uppercase text-neutral-500 mb-1">Date From</label>
-              <input type="date" id="exec-date-from" onchange="renderExecutiveReport()" class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-xs font-semibold bg-neutral-50" />
-            </div>
-            <div>
-              <label class="block text-[10px] font-bold uppercase text-neutral-500 mb-1">Date To</label>
-              <input type="date" id="exec-date-to" onchange="renderExecutiveReport()" class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-xs font-semibold bg-neutral-50" />
+
+            <!-- Filter Controls -->
+            <div class="no-print grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-neutral-500 mb-1">Filter Farm Group</label>
+                <select id="exec-farm-filter" onchange="renderExecutiveReport()" class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-xs font-bold text-neutral-800 bg-neutral-50">
+                  <option value="ALL">All Farms (Consolidated)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-neutral-500 mb-1">Date From</label>
+                <input type="date" id="exec-date-from" onchange="renderExecutiveReport()" class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-xs font-semibold bg-neutral-50" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-neutral-500 mb-1">Date To</label>
+                <input type="date" id="exec-date-to" onchange="renderExecutiveReport()" class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-xs font-semibold bg-neutral-50" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Executive Overall KPI Strip -->
-        <div id="exec-kpi-strip" class="grid grid-cols-2 gap-2.5">
-          <!-- KPI Cards rendered dynamically -->
-        </div>
-
-        <!-- Per-Group Detailed Farm Breakdown Cards -->
-        <div id="exec-group-reports" class="space-y-4">
-          <!-- Group-by-group detailed report cards rendered here -->
-        </div>
-      </section>
-
-      <!-- ===================================================================== -->
-      <!-- TAB 4: ADMIN PANEL (GENERATE REPORT, EDIT/ADD FARMS, HOUSES & MENUS)  -->
-      <!-- ===================================================================== -->
-      <section id="tab-admin" class="hidden space-y-4">
-        <!-- Admin Password Lock Screen (Shown when locked) -->
-        <div id="admin-lock-screen" class="bg-white rounded-2xl shadow-android jotform-card p-6 text-center space-y-4">
-          <div class="w-14 h-14 rounded-2xl bg-mivRed-100 text-mivRed-700 mx-auto flex items-center justify-center text-2xl shadow-inner">
-            <i class="fa-solid fa-lock"></i>
-          </div>
-          <div>
-            <h2 class="text-lg font-extrabold text-neutral-900">Admin Control Center</h2>
-            <p class="text-xs text-neutral-500 mt-1">Enter Admin Password to configure farms, houses, menus &amp; automated reports</p>
-          </div>
-          <div class="max-w-xs mx-auto space-y-2.5">
-            <input type="password" id="admin-pass-input" onkeydown="if(event.key==='Enter') unlockAdminTab()" placeholder="Enter admin password" class="w-full rounded-xl border-2 border-neutral-300 focus:border-mivRed-600 px-4 py-2.5 text-center font-mono font-bold text-base tracking-widest outline-none" />
-            <button onclick="unlockAdminTab()" class="btn-android w-full py-3 rounded-xl bg-mivRed-700 hover:bg-mivRed-800 text-white font-extrabold text-sm shadow-md">
-              Unlock Admin Settings
-            </button>
-          </div>
-        </div>
-
-        <!-- Admin Unlocked Workspace -->
-        <div id="admin-unlocked-content" class="hidden space-y-4">
-          <!-- Admin Top Header -->
-          <div class="bg-gradient-to-r from-neutral-900 to-neutral-800 text-white rounded-2xl p-4 flex items-center justify-between shadow-android">
-            <div>
-              <span class="text-[10px] font-extrabold uppercase tracking-wider text-mivYellow-400">Admin Mode Active</span>
-              <h2 class="text-base font-extrabold">Farm &amp; Safety Configuration</h2>
-            </div>
-            <button onclick="lockAdminSession()" class="btn-android px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-mivYellow-300 flex items-center gap-1.5">
-              <i class="fa-solid fa-lock"></i> Lock
-            </button>
+          <!-- Executive Overall KPI Strip -->
+          <div id="exec-kpi-strip" class="grid grid-cols-2 gap-2.5">
+            <!-- KPI Cards rendered dynamically -->
           </div>
 
-          <!-- A1. Automated Farm Report Generator -->
-          <div class="bg-white rounded-2xl shadow-android jotform-card p-4 space-y-3">
-            <h3 class="text-sm font-extrabold text-neutral-900 flex items-center gap-2">
-              <i class="fa-solid fa-wand-magic-sparkles text-mivRed-600"></i> Generate Automated Farm Report
-            </h3>
-            <div class="flex flex-col sm:flex-row gap-2">
-              <select id="admin-auto-report-farm" class="flex-1 rounded-xl border border-neutral-300 px-3 py-2 text-xs font-bold bg-neutral-50">
-                <option value="ALL">All Farms (Company-Wide Audit)</option>
-              </select>
-              <button onclick="generateAutomatedFarmReport()" class="btn-android px-4 py-2.5 rounded-xl bg-mivRed-700 text-white font-extrabold text-xs shadow-xs">
-                Generate Audit Brief
-              </button>
-            </div>
-            <div id="admin-auto-report-output" class="hidden bg-neutral-50 rounded-xl p-3 border border-neutral-200 space-y-2"></div>
-          </div>
-
-          <!-- A2. Edit / Add Farm Groups & Required Extinguishers -->
-          <div class="bg-white rounded-2xl shadow-android jotform-card-yellow p-4 space-y-3">
-            <div class="flex items-center justify-between">
-              <h3 class="text-sm font-extrabold text-neutral-900 flex items-center gap-2">
-                <i class="fa-solid fa-warehouse text-mivYellow-600"></i> Edit / Add Farm Groups
-              </h3>
-              <span class="text-[10px] font-bold text-neutral-400">Auto-Syncs to Dropbox</span>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <input type="text" id="admin-new-farm-name" placeholder="New Farm Name (e.g. Farm D - Rembau)" class="sm:col-span-2 rounded-xl border border-neutral-300 px-3 py-2 text-xs font-semibold" />
-              <input type="number" min="0" id="admin-new-farm-req-ext" placeholder="Req. Extinguishers" class="rounded-xl border border-neutral-300 px-3 py-2 text-xs font-mono font-bold" />
-            </div>
-            <button onclick="adminAddFarm()" class="btn-android w-full py-2.5 rounded-xl bg-mivYellow-500 hover:bg-mivYellow-400 text-neutral-950 font-extrabold text-xs shadow-xs">
-              + Add New Farm Group
-            </button>
-            <div id="admin-farms-list" class="space-y-2 pt-1"></div>
-          </div>
-
-          <!-- A3. Edit / Add House Numbers & Location per Farm -->
-          <div class="bg-white rounded-2xl shadow-android jotform-card p-4 space-y-3">
-            <h3 class="text-sm font-extrabold text-neutral-900 flex items-center gap-2">
-              <i class="fa-solid fa-house-chimney text-mivRed-600"></i> Edit / Add House Numbers &amp; Location
-            </h3>
-            <div>
-              <label class="block text-[11px] font-bold text-neutral-600 mb-1">Select Target Farm Group</label>
-              <select id="admin-house-farm-select" onchange="renderAdminHouses()" class="w-full rounded-xl border border-neutral-300 px-3 py-2 text-xs font-bold bg-mivYellow-50/60"></select>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <input type="text" id="admin-new-house-num" placeholder="House No. (e.g. House 4 / Store 2)" class="rounded-xl border border-neutral-300 px-3 py-2 text-xs font-semibold" />
-              <input type="text" id="admin-new-house-loc" placeholder="Location (e.g. North Feed Silo)" class="rounded-xl border border-neutral-300 px-3 py-2 text-xs font-semibold" />
-            </div>
-            <button onclick="adminAddHouse()" class="btn-android w-full py-2.5 rounded-xl bg-neutral-900 text-mivYellow-400 font-extrabold text-xs">
-              + Add House / Location to Selected Farm
-            </button>
-            <div id="admin-houses-list" class="space-y-2 pt-1"></div>
-          </div>
-
-          <!-- A4. Edit / Add Selection Menu Options -->
-          <div class="bg-white rounded-2xl shadow-android jotform-card-yellow p-4 space-y-3">
-            <h3 class="text-sm font-extrabold text-neutral-900 flex items-center gap-2">
-              <i class="fa-solid fa-list-check text-mivYellow-600"></i> Edit / Add Selection Menu
-            </h3>
-            <div>
-              <label class="block text-[11px] font-bold text-neutral-600 mb-1">Menu Category</label>
-              <select id="admin-menu-category" onchange="renderAdminMenuOptions()" class="w-full rounded-xl border border-neutral-300 px-3 py-2 text-xs font-bold bg-neutral-50">
-                <option value="inspectors">Workers Name Inspector</option>
-                <option value="pressureGauges">Pressure Gauge Options</option>
-                <option value="safetySeals">Safety Pin / Seal Options</option>
-                <option value="conditions">Extinguisher Condition Options</option>
-                <option value="hydrantTypes">Fire Hydrant Type Options</option>
-              </select>
-            </div>
-            <div class="flex gap-2">
-              <input type="text" id="admin-new-menu-option" placeholder="New dropdown option value..." class="flex-1 rounded-xl border border-neutral-300 px-3 py-2 text-xs font-semibold" />
-              <button onclick="adminAddMenuOption()" class="btn-android px-4 py-2 rounded-xl bg-mivRed-700 text-white font-extrabold text-xs">
-                + Add
-              </button>
-            </div>
-            <div id="admin-menu-options-list" class="flex flex-wrap gap-2 pt-1"></div>
-          </div>
-
-          <!-- A5. Security & Password Settings -->
-          <div class="bg-white rounded-2xl shadow-android p-4 space-y-2.5 border border-neutral-200">
-            <h3 class="text-xs font-extrabold uppercase text-neutral-600">Admin &amp; Log Security Password</h3>
-            <div class="flex gap-2">
-              <input type="password" id="admin-update-password" placeholder="Set new admin/log password" class="flex-1 rounded-xl border border-neutral-300 px-3 py-2 text-xs font-mono font-bold" />
-              <button onclick="adminChangePassword()" class="btn-android px-4 py-2 rounded-xl bg-neutral-900 text-white font-bold text-xs">
-                Update
-              </button>
-            </div>
+          <!-- Per-Group Detailed Farm Breakdown Cards -->
+          <div id="exec-group-reports" class="space-y-4">
+            <!-- Group-by-group detailed report cards rendered here -->
           </div>
         </div>
       </section>
@@ -2668,7 +2552,7 @@
     function exportExecutiveCSV() {
       const filtered = getFilteredExecutiveReports();
       const rows = [
-        ['Date', 'Farm Group', 'Inspector', 'Category', 'Location', 'Pressure Gauge / Diesel %', 'Seal / Battery (V)', 'Condition / Run (Mins)', 'Expiry / Hoses & Nozzles']
+        ['Date', 'Farm Group', 'Inspector', 'Category', 'Location', 'Hydrant Type / Gauge', 'Diesel % / Seal', 'Battery (V) / Condition', 'Run (Mins) / Expiry', 'Hoses & Nozzles']
       ];
 
       filtered.forEach(r => {
@@ -2682,7 +2566,8 @@
             e.pressureGauge,
             e.safetySeal,
             e.condition,
-            e.expiryDate
+            e.expiryDate,
+            ''
           ]);
         });
         (r.hydrants || []).forEach(h => {
@@ -2692,12 +2577,13 @@
             r.date,
             r.farmName,
             r.inspector,
-            `Fire Hydrant (${hType})`,
+            'Fire Hydrant',
             h.location,
-            isElec ? 'N/A (Electric)' : `${h.dieselPercent}%`,
+            hType,
+            isElec ? 'N/A' : `${h.dieselPercent}%`,
             `${h.batteryVoltage}V`,
             `${h.testRunMinutes} mins`,
-            `${h.hoseCount} Hoses / ${h.nozzleCount} Nozzles`
+            `${h.hoseCount} Hose / ${h.nozzleCount} Nozzle`
           ]);
         });
       });
@@ -2715,11 +2601,11 @@
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      showToast('CSV Report Exported!', 'success');
+      showToast('Executive CSV Report Downloaded!', 'success');
     }
 
-    // Print Executive Report reliably on Mobile (Android/iOS), WebViews & Desktop without blocked popups
-    function printExecutiveReport() {
+    // Print & Mobile PDF Export for Executive Report (works on Android/iOS WebViews, PWAs & Desktop)
+    function prepareExecutivePrintView() {
       switchTab('executive');
       renderExecutiveReport();
 
@@ -2733,22 +2619,62 @@
       if (metaEl) metaEl.textContent = `Scope: ${selectedFarmLabel} | Period: ${dateFrom} to ${dateTo}`;
       if (dateEl) dateEl.textContent = `Printed: ${new Date().toLocaleString()}`;
 
-      // Activate clean in-page print layout (avoids popup blockers on mobile browsers)
       document.getElementById('mobile-print-toolbar')?.classList.remove('hidden');
       document.getElementById('mobile-print-header')?.classList.remove('hidden');
       document.getElementById('exec-controls-card')?.classList.add('hidden');
+    }
+
+    function triggerNativePrintDialog() {
+      try {
+        window.print();
+      } catch (err) {
+        showToast('Tap Save PDF or use Browser Menu → Share → Print', 'info');
+      }
+    }
+
+    async function downloadExecutivePDF() {
+      prepareExecutivePrintView();
+      const target = document.getElementById('exec-printable-area');
+      if (!target || typeof html2pdf === 'undefined') {
+        triggerNativePrintDialog();
+        return;
+      }
+
+      showToast('Generating PDF file...', 'info');
+      const filename = `MIV_Fire_Protection_Executive_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename,
+        image: { type: 'jpeg', quality: 0.96 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      try {
+        await html2pdf().set(opt).from(target).save();
+        showToast('PDF downloaded to device!', 'success');
+      } catch (err) {
+        console.warn('PDF generation fallback:', err);
+        triggerNativePrintDialog();
+      }
+    }
+
+    function printExecutiveReport() {
+      prepareExecutivePrintView();
       window.scrollTo({ top: 0, behavior: 'instant' });
 
-      // Trigger native mobile/desktop print & PDF dialog after layout paint
-      requestAnimationFrame(() => {
+      const isMobileOrEmbedded = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (window.self !== window.top);
+      if (isMobileOrEmbedded && typeof html2pdf !== 'undefined') {
+        // On mobile browsers & WebViews where window.print() is ignored/blocked, generate & download real PDF immediately
         setTimeout(() => {
-          try {
-            window.print();
-          } catch (err) {
-            showToast('Use your browser menu → Print / Save as PDF', 'info');
-          }
+          downloadExecutivePDF();
         }, 120);
-      });
+      } else {
+        setTimeout(() => {
+          triggerNativePrintDialog();
+        }, 120);
+      }
     }
 
     function exitMobilePrintMode() {
